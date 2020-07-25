@@ -32,6 +32,7 @@ public class MultiChatServer {
   //a set of writers that write to the output of a client's socket
   private static HashSet<PrintWriter> outputWriters = new HashSet<>();
 
+  //a set of the current active servers
   private static HashSet<String> serverNames = new HashSet();
 
   /**
@@ -47,6 +48,8 @@ public class MultiChatServer {
    */
   public static void main(String[] args) throws IllegalArgumentException,
       NumberFormatException {
+
+    //handle the command line argument for amount of clients on a server (default 30)
     int possibleAmountOfClients;
     if (args.length == 2) {
       possibleAmountOfClients = Integer.parseInt(args[1]);
@@ -56,11 +59,14 @@ public class MultiChatServer {
       throw new IllegalArgumentException("Supplied more than 2 argument. Please enter zero or one "
           + "integer only for number of desired clients.");
     }
-    System.out.println("MultiChat Server is running...");
 
+    //starts the background process of communicating to a master server that keeps track of active
+    //servers and updates the active servers on the existence of other servers
     Thread masterServerCommunication = new Thread(new RunServerCommunication(args[0]));
     masterServerCommunication.start();
+    System.out.println("MultiChat Server is running...");
 
+    //creates a thread to handle each socket connection to this server,
     ExecutorService pool = Executors.newFixedThreadPool(possibleAmountOfClients);
     try {
       SSLServerSocket server = initSSLDetailsAndGetSocket(args[0]);
@@ -72,6 +78,7 @@ public class MultiChatServer {
     }
   }
 
+  //returns the SSLServerSocket initialized with the keys and algorithm to use for encryption
   private static SSLServerSocket initSSLDetailsAndGetSocket(String portNumber)
       throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException,
       UnrecoverableKeyException, KeyManagementException {
@@ -84,24 +91,27 @@ public class MultiChatServer {
     KeyStore ks;
     char[] passphrase = "socketpractice".toCharArray();
 
+    //specifies TLS protocol, SunX509 key manager algorithm, and .jks keystore file types to be used
     ctx = SSLContext.getInstance("TLS");
     kmf = KeyManagerFactory.getInstance("SunX509");
     ks = KeyStore.getInstance("JKS");
 
+    //loads the keystore to be used for encryption
     ks.load(MultiChatServer.class.getClassLoader().getResourceAsStream(
         "server/resources/keystore/server_keystore.jks"), passphrase);
     kmf.init(ks, passphrase);
 
+    //initializes the SSL context to the key stores with a default security provider and trust store
     ctx.init(kmf.getKeyManagers(), null, null);
 
+    //return a SSL socket with all the specific SSL context
     ssf = ctx.getServerSocketFactory();
     return (SSLServerSocket) ssf.createServerSocket(Integer.parseInt(portNumber));
   }
 
+  //A function object that communicates to the "master" server
   private static class RunServerCommunication implements Runnable {
-
-    private String portNumber;
-
+    private final String portNumber;
     private RunServerCommunication(String portNumber) {
       this.portNumber = portNumber;
     }
@@ -112,7 +122,12 @@ public class MultiChatServer {
         Socket socketToMasterServer = new Socket("localhost", 50000);
         Scanner serverIn = new Scanner(socketToMasterServer.getInputStream());
         PrintWriter serverOut = new PrintWriter(socketToMasterServer.getOutputStream(), true);
+
+        //tells the master server the name of this server
         serverOut.println("Server " + portNumber);
+
+        //continually listens for the master server's updates on the active server list, then
+        //formatting to be an array of server names
         while(serverIn.hasNextLine()) {
           String serverList = serverIn.nextLine();
           serverList = serverList.substring(17);
@@ -265,6 +280,7 @@ public class MultiChatServer {
       out.println("MESSAGEHELP Type /help to access this help menu.");
     }
 
+    //prints a help menu with commands to produce emoticons
     private void printEmoteHelpMessage() {
       out.println("MESSAGEHELP Emotes menu: ");
       out.println("MESSAGEHELP Smiley Face :) : \":)\"");
@@ -277,6 +293,7 @@ public class MultiChatServer {
       out.println("MESSAGEHELP Pepehands( Pepehands ): \"Pepehands\"");
     }
 
+    //sends the client an updated list of active users
     private void updateActiveUsers() {
       for (PrintWriter writer : outputWriters) {
         StringBuilder activeUserList = new StringBuilder();
@@ -289,6 +306,7 @@ public class MultiChatServer {
     }
   }
 
+  //sends the client an updated list of active servers
   private static void updateServerList() {
     for (PrintWriter out : outputWriters) {
       StringBuilder serverList = new StringBuilder();

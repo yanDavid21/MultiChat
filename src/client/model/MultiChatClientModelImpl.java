@@ -72,7 +72,7 @@ public class MultiChatClientModelImpl implements MultiChatModel {
     //initializes the SSL context to the key and trust stores with a default security provider
     ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-    //return a SSL socket with all this specific SSL context
+    //return a SSL socket with all the specific SSL context
     factory = ctx.getSocketFactory();
     return (SSLSocket)factory.createSocket(ipAddress, portNumber);
   }

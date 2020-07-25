@@ -162,11 +162,11 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     private CenterPanel() {
       this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
       chatLog = new JTextPane();
-      chatLog.setPreferredSize(new Dimension(400, 300));
       chatLog.setContentType("text/html");
       chatLog.setAutoscrolls(true);
       chatLog.setEditable(false);
-      JScrollPane scrollChatLog = (new JScrollPane(chatLog));
+      JScrollPane scrollChatLog = new JScrollPane(chatLog);
+      scrollChatLog.setPreferredSize(new Dimension(400, 300));
       scrollChatLog.setBorder(new LineBorder(Color.BLUE, 1));
       this.add(scrollChatLog);
 
