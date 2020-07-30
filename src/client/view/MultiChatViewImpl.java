@@ -140,7 +140,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   @Override
   public void setActiveUsers(List<String> activeUsersList) {
     StringBuilder buildUserList = new StringBuilder();
-    buildUserList.append("<h3>Active Users:</h3>");
+    buildUserList.append("<h3> Active Users:</h3>");
     for (String user : activeUsersList) {
       buildUserList.append(removeHTML(user) + "<br>");
     }
@@ -288,6 +288,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     private JMenuItem darkmode;
     private JMenuItem font;
     private JMenuItem helpItem;
+    private JMenuItem quitItem;
 
     private CustomMenuBar() {
       settings = new JMenu("MultiChat");
@@ -302,6 +303,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
       darkmode = new JMenuItem("Enable Darkmode");
       font = new JMenuItem("Font");
       helpItem = new JMenuItem("Help");
+      quitItem = new JMenuItem("Quit");
 
       try {
         Image switchRoomIcon = ImageIO.read(getClass().getResource(
@@ -325,15 +327,21 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
 
       settings.add(switchRooms);
       settings.add(privateMessage);
+      settings.add(quitItem);
       view.add(darkmode);
       view.add(font);
       help.add(helpItem);
 
       helpItem.addActionListener(e -> createHelpDialog());
+      quitItem.addActionListener(e -> quitFromMenu());
     }
   }
   private void createHelpDialog() {
     new HelpDialog();
+  }
+
+  private void quitFromMenu() {
+    feature.sendTextOut("/quit");
   }
 
   private String formatDate(String message) {
