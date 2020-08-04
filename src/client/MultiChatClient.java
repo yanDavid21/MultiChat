@@ -5,7 +5,10 @@ import client.controller.MultiChatControllerImpl;
 import client.model.MultiChatClientModelImpl;
 import client.model.MultiChatModel;
 import client.view.MultiChatView;
-import client.view.MultiChatViewImpl;
+import client.view.javafxView.FXEntryPoint;
+import client.view.swingView.MultiChatViewImpl;
+import javafx.application.Application;
+
 import java.io.IOException;
 
 public class MultiChatClient {
@@ -17,7 +20,8 @@ public class MultiChatClient {
 
     try {
       MultiChatModel model = new MultiChatClientModelImpl(args[0], Integer.parseInt(args[1]));
-      MultiChatView gui = new MultiChatViewImpl();
+      new Thread(() -> Application.launch(FXEntryPoint.class)).start();
+      var gui = FXEntryPoint.getCurrentInstance();
       MultiChatController controller = new MultiChatControllerImpl(model, gui);
       controller.run();
     } catch (IOException ioe){

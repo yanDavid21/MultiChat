@@ -32,7 +32,7 @@ public class MultiChatMasterServer {
   public static void main(String[] args) throws IOException {
     System.out.println("MultiChat Master Server is running...");
     ExecutorService pool = Executors.newFixedThreadPool(Integer.parseInt(args[0]));
-    try (ServerSocket server = new ServerSocket(50000)) {
+    try (ServerSocket server = new ServerSocket(51000)) {
       while (true) {
         pool.execute(new ServerCommunicationHandler(server.accept()));
       }
