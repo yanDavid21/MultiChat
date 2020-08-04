@@ -11,4 +11,8 @@ public class FXMLController  {
         this.features = features;
     }
 
+    public void setTextFieldEditable(boolean b) {
+
+    }
+
 }

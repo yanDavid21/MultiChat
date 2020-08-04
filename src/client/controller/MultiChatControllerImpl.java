@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A
+ */
 public class MultiChatControllerImpl implements MultiChatController, Features {
   private MultiChatModel model;
   private MultiChatView view;

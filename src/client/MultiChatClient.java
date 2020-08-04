@@ -11,7 +11,15 @@ import javafx.application.Application;
 
 import java.io.IOException;
 
+/**
+ *
+ */
 public class MultiChatClient {
+
+  /**
+   *
+   * @param args
+   */
   public static void main(String[] args) {
     if (args.length != 1 && args.length != 2) {
       System.err.println("Pass the server IP as the sole command line argument");
@@ -19,9 +27,14 @@ public class MultiChatClient {
     }
 
     try {
+      //create a model
       MultiChatModel model = new MultiChatClientModelImpl(args[0], Integer.parseInt(args[1]));
+
+      //create a view
       new Thread(() -> Application.launch(FXEntryPoint.class)).start();
-      var gui = FXEntryPoint.getCurrentInstance();
+      MultiChatView gui = FXEntryPoint.getCurrentInstance();
+
+      //initialize the controller with the view and model then calls the run method
       MultiChatController controller = new MultiChatControllerImpl(model, gui);
       controller.run();
     } catch (IOException ioe){
