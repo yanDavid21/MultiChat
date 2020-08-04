@@ -28,8 +28,8 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         String username = view.getName("Please select a different screen name:");
         model.sendText(username);
       } else if (line.startsWith("NAMEACCEPTED")) {
-        view.setTextFieldEditable(true);
         view.display();
+        view.setTextFieldEditable(true);
       } else if (line.startsWith("MESSAGE ")) {
         view.appendChatLog(line.substring(8), "black", true);
       } else if (line.startsWith("MESSAGEUSERJOINED ")) {

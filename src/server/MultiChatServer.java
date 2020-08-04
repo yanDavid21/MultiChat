@@ -119,7 +119,7 @@ public class MultiChatServer {
     @Override
     public void run() {
       try {
-        Socket socketToMasterServer = new Socket("localhost", 50000);
+        Socket socketToMasterServer = new Socket("localhost", 51000);
         Scanner serverIn = new Scanner(socketToMasterServer.getInputStream());
         PrintWriter serverOut = new PrintWriter(socketToMasterServer.getOutputStream(), true);
 
