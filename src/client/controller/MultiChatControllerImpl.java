@@ -7,30 +7,44 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A
+ * An implementation of the client's controller object, possessing both model and view objects of the client, delegating
+ * each to handle the server's communication.
  */
 public class MultiChatControllerImpl implements MultiChatController, Features {
   private MultiChatModel model;
   private MultiChatView view;
 
+  /**
+   * Constructs an instance of a MultiChatControllerImpl, providing this object with instances of a MultiChatView and
+   * MultiChatModel
+   * @param model MultiChatModel instance to be used for the client's logic
+   * @param view MultiChatView instance to be used for displaying the client
+   */
   public MultiChatControllerImpl(MultiChatModel model, MultiChatView view) {
     this.model = model;
     this.view = view;
-    view.giveFeatures(this);
+    view.giveFeatures(this); //give itself to the view as a Features object, allowing limited and specific method access
   }
 
   @Override
   public void run() {
-    while(model.isConnectionRunning()) {
-      String line = model.getSocketInput();
+    String username = "";
 
+    while(model.isConnectionRunning()) { //while the server and this client is still connected
+
+      String line = model.getSocketInput(); //listen and capture what the server just communicated
+
+      //handle what the server communicated based on the pre-determined protocols (ie. SUBMITNAME & NAMEACCEPTED)
       if (line.startsWith("SUBMITNAME")) {
-        String username = view.getName("Choose a screen name:");
+        String name = view.getName("Choose a screen name:");
+        username = name;
         model.sendText(username);
       } else if (line.startsWith("SUBMITANOTHERNAME")) {
-        String username = view.getName("Please select a different screen name:");
+        String name = view.getName("Please select a different screen name:");
+        username = name;
         model.sendText(username);
       } else if (line.startsWith("NAMEACCEPTED")) {
+        model.setUsername(username);
         view.display();
         view.setTextFieldEditable(true);
       } else if (line.startsWith("MESSAGE ")) {
@@ -64,11 +78,16 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         }
       }
     }
-    view.dispose();
+    view.dispose(); //once connection is closed, end the GUI
   }
 
   @Override
   public void sendTextOut(String out) {
     model.sendText(out);
+  }
+
+  @Override
+  public String getClientUsername() {
+    return model.getUsername();
   }
 }

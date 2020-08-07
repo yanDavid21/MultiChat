@@ -39,6 +39,8 @@ public class FXEntryPoint extends Application implements MultiChatView {
     private static CountDownLatch waitForNameLatch;
     private String prompt; //prompt for username request dialog windows
 
+    private Features feature;
+
     /**
      * Creates an instance of FXEntryPoint. When Application.launch() creates a new instance of this class, set the
      * created object to the public static variable
@@ -63,6 +65,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     @Override
     public void giveFeatures(Features feature) {
+        this.feature = feature;
         controller.setFeatures(feature);
     }
 
@@ -77,7 +80,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     @Override
     public void appendChatLog(String s, String color, boolean hasDate) {
-
+        controller.appendChatLog(s, color, hasDate);
     }
 
     @Override
@@ -112,7 +115,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     @Override
     public void dispose() {
-        window.close();
+        Platform.runLater(() -> window.close());
     }
 
     @Override
@@ -127,12 +130,18 @@ public class FXEntryPoint extends Application implements MultiChatView {
         controller = loader.getController();
 
         //initialize the primary scene from the fxml file
-        Scene scene = new Scene(pane, 200, 200);
+        Scene scene = new Scene(pane, 800, 600);
         window.setScene(scene);
+        controller.setScene(scene);
 
         //adds the icons to the taskbar and window frame
         window.getIcons().add(new Image(this.getClass().getResourceAsStream(
                 "/client/resources/logo/multichat_logo.png")));
+
+        window.setResizable(false);
+        window.setOnCloseRequest(e -> {
+            this.feature.sendTextOut("/quit");
+        });
 
         //allows this instance to be accessed by the latch once this method finishes
         waitForInitLatch.countDown();
@@ -196,5 +205,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
         banner.requestFocus();
         dialogWindow.showAndWait();
     }
+
+
 
 }

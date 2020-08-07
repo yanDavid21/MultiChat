@@ -6,15 +6,56 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
 <VBox xmlns="http://javafx.com/javafx"
-  xmlns:fx="http://javafx.com/fxml"
-  fx:controller="client.view.javafxView.FXMLController"
-  prefHeight="400.0" prefWidth="600.0"
-  fx:id = "layout">
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="client.view.javafxView.FXMLController"
+      prefHeight="400.0" prefWidth="600.0" fx:id="layout">
 
-  <MenuBar>
-    <Menu text = "MultiChat">
-      <MenuItem text = "Switch Rooms"></MenuItem>
-    </Menu>
-  </MenuBar>
+  <!--Chat Area-->
+  <HBox minHeight="500">
+    <VBox>
+      <HBox>
+        <ImageView fitWidth = "50" fitHeight="50">
+          <image>
+            <Image url="@/client/resources/logo/multichat_logo.png"/>
+          </image>
+        </ImageView>
+      </HBox>
+      <TabPane prefHeight = "600">
+        <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /></padding>
+        <Tab text = "User" closable="false">
+          <ListView></ListView>
+        </Tab>
+        <Tab text = "Servers" closable="false">
+          <ListView></ListView>
+        </Tab>
+      </TabPane>
+    </VBox>
+
+    <VBox minWidth = "600" alignment="CENTER">
+      <ImageView id="boxImage" fitWidth = "600" fitHeight = "100">
+        <image>
+          <Image url="@/client/resources/logo/multichat_full_logo.png"/>
+        </image>
+      </ImageView>
+      <ScrollPane minHeight = "450" maxHeight = "450" fx:id ="scrollPane">
+        <TextFlow fx:id="chatLog">
+          <padding> <Insets top = "5" right = "5" bottom = "5" left = "5"/></padding>
+        </TextFlow>
+      </ScrollPane>
+      <HBox spacing = "10" alignment = "CENTER">
+        <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /> </padding>
+        <Button text = "+"></Button>
+        <Separator orientation = "VERTICAL" ></Separator>
+        <TextArea promptText="Type here..." fx:id="chatField" maxHeight="30" wrapText="true"
+                  onKeyPressed="#onEnter" prefWidth = "500"> </TextArea>
+      </HBox>
+    </VBox>
+
+  </HBox>
+
 </VBox>

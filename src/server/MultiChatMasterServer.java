@@ -39,9 +39,10 @@ public class MultiChatMasterServer {
     }
   }
 
+  //a function object that stores the task that every thread runs for each new server connection
   private static class ServerCommunicationHandler implements Runnable {
 
-    private Socket multiChatServerClientSocket;
+    private final Socket multiChatServerClientSocket;
     private Scanner in; //the input of the server
     private PrintWriter out; //the output to the server
     private String serverPortName;
@@ -62,6 +63,7 @@ public class MultiChatMasterServer {
       }
     }
 
+    //checks whether the server is running, if it is not removes it from the list of active servers
     private void checkServerRunning() throws IOException {
       while (true) {
         try {
@@ -82,6 +84,7 @@ public class MultiChatMasterServer {
       out = new PrintWriter(multiChatServerClientSocket.getOutputStream(), true);
     }
 
+    //adds a server to the active server list
     private void addServer() {
       synchronized (activeServers) {
         String input = in.nextLine();
@@ -92,6 +95,7 @@ public class MultiChatMasterServer {
       updateServerList();
     }
 
+    //writes to all the active servers an updated version of the list
     private void updateServerList() {
       for (PrintWriter output : outputWriters) {
         StringBuilder serverListBuilder = new StringBuilder();

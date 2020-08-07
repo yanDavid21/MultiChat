@@ -23,6 +23,7 @@ public class MultiChatClientModelImpl implements MultiChatModel {
   private Scanner in;
   private PrintWriter out;
   private SSLSocket socket;
+  private String name;
 
   public MultiChatClientModelImpl(String ipAddress, int portNumber) throws IOException {
     this.ipAddress = ipAddress;
@@ -121,5 +122,15 @@ public class MultiChatClientModelImpl implements MultiChatModel {
   public MultiChatClientModelImpl switchPorts(String portNumber) throws IOException,
       NumberFormatException {
     return new MultiChatClientModelImpl(this.ipAddress, Integer.parseInt(portNumber));
+  }
+
+  @Override
+  public void setUsername(String username) {
+    name = username;
+  }
+
+  @Override
+  public String getUsername() {
+    return name;
   }
 }

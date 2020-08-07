@@ -43,7 +43,5 @@ public class MultiChatClient {
     }
   }
 
-  //TODO: emotes, closing master, secure master server connection
-
-  //added join, documentlistener, dialog visibility, heart and emote help, update title
+  //TODO: secure master server connection, make it look pretty
 }

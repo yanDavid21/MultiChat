@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface MultiChatView {
 
-  Map<String, String> EMOTES = Map.ofEntries(
+  Map<String, String> HTMLEMOTES = Map.ofEntries(
       entry("&lt;3", "heart.png"),
       entry(":)", "smiley.png"),
       entry(":(", "frowny.png"),
@@ -17,6 +17,17 @@ public interface MultiChatView {
       entry("D:", "anguish.png"),
       entry(":p", "tongue.png"),
       entry("&gt;:(", "angry.png")
+  );
+
+  Map<String, String> FXEMOTES = Map.ofEntries(
+          entry("<3", "heart.png"),
+          entry(":)", "smiley.png"),
+          entry(":(", "frowny.png"),
+          entry(":/", "confused.png"),
+          entry(":D", "excited.png"),
+          entry("D:", "anguish.png"),
+          entry(":p", "tongue.png"),
+          entry(">:(", "angry.png")
   );
 
   Map<String, String> TWITCH_EMOTES = Map.ofEntries(
