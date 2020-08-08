@@ -42,10 +42,10 @@
           <Image url="@/client/resources/logo/multichat_full_logo.png"/>
         </image>
       </ImageView>
-      <ScrollPane minHeight = "450" maxHeight = "450" fx:id ="scrollPane">
-        <TextFlow fx:id="chatLog">
+      <ScrollPane minHeight = "450" maxHeight = "450" minWidth = "600" fx:id ="scrollPane">
+        <VBox fx:id="chatLog" minWidth = "590" spacing = "3">
           <padding> <Insets top = "5" right = "5" bottom = "5" left = "5"/></padding>
-        </TextFlow>
+        </VBox>
       </ScrollPane>
       <HBox spacing = "10" alignment = "CENTER">
         <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /> </padding>
