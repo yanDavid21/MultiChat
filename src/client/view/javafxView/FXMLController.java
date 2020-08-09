@@ -3,13 +3,14 @@ package client.view.javafxView;
 import client.controller.Features;
 import client.view.MultiChatView;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -18,9 +19,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+
+import java.util.List;
 
 public class FXMLController {
     private Features features;
@@ -33,14 +37,23 @@ public class FXMLController {
     @FXML
     private ScrollPane scrollPane;
 
+    @FXML
+    private ListView<String> userListView = new ListView<>();
+    @FXML
+    private ListView<String> serverListView = new ListView<>();
+
+    private ObservableList<String> userList = FXCollections.observableArrayList();
+    private ObservableList<String> serverList = FXCollections.observableArrayList();
+
     public void setFeatures(Features features) {
         this.features = features;
-        System.out.print("features:  " + this.features);
     }
 
     public void setScene(Scene scene) {
         this.scene = scene;
         scrollPane.vvalueProperty().bind(chatLog.heightProperty());
+        this.serverListView.setItems(serverList);
+        this.userListView.setItems(userList);
     }
 
     public void onEnter(KeyEvent ke) {
@@ -197,6 +210,49 @@ public class FXMLController {
     //extracts the username of the message
     private String extractName(String msg) {
         return msg.substring(msg.indexOf("]") + 2).split(": ")[0];
+    }
+
+    public void setActiveUsers(List<String> activeUsers) {
+        setActiveList(activeUsers, this.userList, this.userListView);
+    }
+
+    public void setActiveServers(List<String> activeServers) {
+        setActiveList(activeServers, this.serverList, this.serverListView);
+    }
+
+    private void setActiveList(List<String> listOfNames, ObservableList<String> observableList,
+                               ListView<String> listView) {
+        Platform.runLater(() -> {
+            observableList.clear();
+            observableList.addAll(listOfNames);
+            listView.setCellFactory(lv -> new Cell());
+        });
+    }
+
+    private static class Cell extends ListCell<String> {
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+            } else if (item != null) {
+                Circle userIcon = new Circle(5);
+                HBox userTile = new HBox();
+                userTile.setPadding(new Insets(3, 3, 3, 3));
+                userTile.setSpacing(5);
+                userTile.getChildren().addAll(userIcon, new Text(item));
+                userIcon.setFill(randomColor());
+                setGraphic(userTile);
+            }
+        }
+    }
+
+    private static Color randomColor() {
+        int red = ((int)(Math.random() * 255)) + 1;
+        int green = ((int)(Math.random() * 255)) + 1;
+        int blue = ((int)(Math.random() * 255)) + 1;
+        return Color.web(String.format("rgb(%d,%d,%d)", red, green, blue));
     }
 
 //    public void setDarkMode() {

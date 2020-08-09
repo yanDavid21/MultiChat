@@ -27,11 +27,13 @@
       </HBox>
       <TabPane prefHeight = "600">
         <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /></padding>
-        <Tab text = "User" closable="false">
-          <ListView></ListView>
+        <Tab text = "Users" closable="false">
+          <ListView fx:id = "userListView">
+          </ListView>
         </Tab>
         <Tab text = "Servers" closable="false">
-          <ListView></ListView>
+          <ListView fx:id = "serverListView">
+          </ListView>
         </Tab>
       </TabPane>
     </VBox>
