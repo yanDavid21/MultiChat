@@ -24,7 +24,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,6 +276,21 @@ public class FXMLController {
         }
     }
 
+    @FXML
+    private void openFileExplorer() {
+        Platform.runLater(() -> {
+
+        });
+//        FileChooser dialog = new FileChooser();
+//        dialog.setTitle("Select a file to upload.");
+//        File selected = dialog.showOpenDialog(scene.getWindow());
+//        if (selected.length() > 25000000) {
+//
+//        } else {
+//
+//        }
+    }
+
     private class Cell extends ListCell<String> {
         private boolean isUserList;
 
@@ -298,19 +315,7 @@ public class FXMLController {
                     button = new MenuButton(item, userIcon, privateMessage, kick);
                 } else {
                     int roomNum = Integer.parseInt(item.split(" ")[1]);
-//          features.requestRoomCapacity(roomNum);
-//          confirmUpdatedServerLatch = new CountDownLatch(1);
-//          try {
-//            confirmUpdatedServerLatch.await();
-//          } catch(InterruptedException ie) {
-//            System.out.println("Unable to server latch!");
-//            System.exit(3);
-//          }
-
-//          int green = (int)(serverCapacities.get(roomNum) * 255);
-//          System.out.println("Green: " + green + " Red: " + (255-green));
-//          userIcon.setFill(Color.web(String.format("rgb(%d,%d,%d)", 255 - green, green, 0)));
-                    userIcon.setFill(Color.RED);
+                    userIcon.setFill(Color.GREEN);
                     MenuItem join = new MenuItem("Join");
                     join.setOnAction(e -> {
                         features.sendTextOut("/join " + roomNum);

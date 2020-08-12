@@ -13,11 +13,10 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="client.view.javafxView.FXMLController"
-      prefHeight="400.0" prefWidth="600.0" fx:id="layout">
+      prefWidth="600.0" fx:id="layout">
 
-  <!--Chat Area-->
   <HBox minHeight="500">
-    <VBox>
+    <VBox minWidth = "200" >
       <HBox>
         <ImageView fitWidth = "50" fitHeight="50">
           <image>
@@ -25,20 +24,21 @@
           </image>
         </ImageView>
       </HBox>
-      <TabPane prefHeight = "600">
+      <TabPane >
         <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /></padding>
         <Tab text = "Users" closable="false">
           <ListView fx:id = "userListView">
           </ListView>
         </Tab>
-        <Tab text = "Servers" closable="false">
+        <Tab text = "Servers" closable = "false">
           <ListView fx:id = "serverListView">
           </ListView>
         </Tab>
       </TabPane>
     </VBox>
 
-    <VBox minWidth = "600" alignment="CENTER">
+    <!--Chat Area-->
+    <VBox alignment="CENTER">
       <ImageView id="boxImage" fitWidth = "600" fitHeight = "100">
         <image>
           <Image url="@/client/resources/logo/multichat_full_logo.png"/>
@@ -51,7 +51,7 @@
       </ScrollPane>
       <HBox spacing = "10" alignment = "CENTER">
         <padding> <Insets top = "10" right = "10" bottom = "10" left =  "10" /> </padding>
-        <Button text = "+"></Button>
+        <Button text = "+"  onAction = "#openFileExplorer"></Button>
         <Separator orientation = "VERTICAL" ></Separator>
         <TextArea promptText="Type here..." fx:id="chatField" maxHeight="30" wrapText="true"
                   onKeyPressed="#onEnter" prefWidth = "500"> </TextArea>
