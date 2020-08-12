@@ -21,10 +21,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FXMLController {
     private Features features;
@@ -44,6 +47,8 @@ public class FXMLController {
 
     private ObservableList<String> userList = FXCollections.observableArrayList();
     private ObservableList<String> serverList = FXCollections.observableArrayList();
+
+    private Map<String, Color> nameColors = new HashMap<>();
 
     public void setFeatures(Features features) {
         this.features = features;
@@ -75,36 +80,67 @@ public class FXMLController {
 
     public void appendChatLog(String s, String color, boolean hasDate) {
         if (hasDate) {
-            appendMessage(formatDate(s), getColor(color));
+            appendMessage(formatDate(s), getColor(color), hasDate);
         } else {
-            appendMessage(s, getColor(color));
+            appendMessage(s, getColor(color), hasDate);
         }
     }
 
-    private void appendMessage(String msg, Color c) {
-        // split message by space to check for emotes
-        String[] words = msg.split(" ");
+    private void appendMessage(String msg, Color c, boolean hasDate) {
+        String date;
+        String restOfMessage;
+        String[] words;
+        if (hasDate) {
+            date = retrieveDate(msg);
+            restOfMessage = msg.substring(msg.indexOf("]") + 1);
+            words = restOfMessage.split(" ");
+        } else {
+            // split message by space to check for emotes
+            date = "";
+            restOfMessage = "";
+            words = msg.split(" ");
+        }
 
         Platform.runLater(() -> {
+            VBox messageContainer = new VBox();
             StackPane bubbleWithMsg = new StackPane(); //stacks the text on top of a chat bubble
-            bubbleWithMsg.setMaxWidth(Double.MAX_VALUE); //the stackpane fills to the width of chatlog
+            messageContainer.setMaxWidth(Double.MAX_VALUE); //the stackpane fills to the width of chatlog
+            bubbleWithMsg.setMaxWidth(Double.MAX_VALUE);
 
             if (!c.equals(Color.BLACK)) {
+                messageContainer.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
                 bubbleWithMsg.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
             } else if (extractName(msg).equals(features.getClientUsername())) {
                 //if it is user text and sent by the user, align to right
+                messageContainer.setAlignment(Pos.BASELINE_RIGHT);
                 bubbleWithMsg.setAlignment(Pos.BASELINE_RIGHT);
             } else {
                 //if it is user text and not sent by the user, align to left
+                messageContainer.setAlignment(Pos.BASELINE_LEFT);
                 bubbleWithMsg.setAlignment(Pos.BASELINE_LEFT);
             }
 
             HBox surface = textMessageWithImages(words, c); //contains the texts and images sent
-            Rectangle rect = getBubbleGraphic(surface, msg, c); //the bubble underneath
-            Group text = new Group(surface); //holds the surface HBox to ensure stackpane alignment affects all children
+            //holds the surface HBox to ensure stackpane alignment affects all children
+            Group message = new Group(surface);
+            Rectangle rect;
 
-            bubbleWithMsg.getChildren().addAll(rect, text); //have the stackpane include text and a bubble underneath
-            chatLog.getChildren().add(bubbleWithMsg); //append the stackpane to the chatlog
+            if (hasDate) {
+                Text dateText = new Text(date);
+                dateText.setFill(Color.GREY);
+                dateText.setFont(new Font("Verdana", 8));
+                rect = getBubbleGraphic(surface, restOfMessage, c); //the bubble underneath
+                //have the stackpane include text and a bubble underneath
+                bubbleWithMsg.getChildren().addAll(rect, message);
+                messageContainer.getChildren().addAll(bubbleWithMsg, dateText);
+                chatLog.getChildren().add(messageContainer); //append the stackpane to the chatlog
+            } else {
+                rect = getBubbleGraphic(surface, msg, c); //the bubble underneath
+                //have the stackpane include text and a bubble underneath
+                bubbleWithMsg.getChildren().addAll(rect, message);
+                messageContainer.getChildren().addAll(bubbleWithMsg);
+                chatLog.getChildren().add(messageContainer); //append the stackpane to the chatlog
+            }
         });
     }
 
@@ -213,23 +249,38 @@ public class FXMLController {
     }
 
     public void setActiveUsers(List<String> activeUsers) {
-        setActiveList(activeUsers, this.userList, this.userListView);
+        setActiveList(activeUsers, this.userList, this.userListView, true);
     }
 
     public void setActiveServers(List<String> activeServers) {
-        setActiveList(activeServers, this.serverList, this.serverListView);
+        setActiveList(activeServers, this.serverList, this.serverListView, false);
     }
 
     private void setActiveList(List<String> listOfNames, ObservableList<String> observableList,
-                               ListView<String> listView) {
+                               ListView<String> listView, boolean isUserList) {
         Platform.runLater(() -> {
             observableList.clear();
             observableList.addAll(listOfNames);
-            listView.setCellFactory(lv -> new Cell());
+            this.mapNameToColor(listOfNames);
+            listView.setCellFactory(lv -> new Cell(isUserList));
         });
     }
 
-    private static class Cell extends ListCell<String> {
+    private void mapNameToColor(List<String> listOfNames) {
+        for(String name : listOfNames) {
+            if(!nameColors.containsKey(name)) {
+                nameColors.put(name, randomColor());
+            }
+        }
+    }
+
+    private class Cell extends ListCell<String> {
+        private boolean isUserList;
+
+        private Cell(boolean isUserList) {
+            this.isUserList = isUserList;
+        }
+
         @Override
         public void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
@@ -237,13 +288,38 @@ public class FXMLController {
                 setText(null);
                 setGraphic(null);
             } else if (item != null) {
+                MenuButton button;
                 Circle userIcon = new Circle(5);
-                HBox userTile = new HBox();
-                userTile.setPadding(new Insets(3, 3, 3, 3));
-                userTile.setSpacing(5);
-                userTile.getChildren().addAll(userIcon, new Text(item));
-                userIcon.setFill(randomColor());
-                setGraphic(userTile);
+                if(isUserList) {
+                    userIcon.setFill(nameColors.get(item));
+
+                    MenuItem privateMessage = new MenuItem("Private Message");
+                    MenuItem kick = new MenuItem("Kick");
+                    button = new MenuButton(item, userIcon, privateMessage, kick);
+                } else {
+                    int roomNum = Integer.parseInt(item.split(" ")[1]);
+//          features.requestRoomCapacity(roomNum);
+//          confirmUpdatedServerLatch = new CountDownLatch(1);
+//          try {
+//            confirmUpdatedServerLatch.await();
+//          } catch(InterruptedException ie) {
+//            System.out.println("Unable to server latch!");
+//            System.exit(3);
+//          }
+
+//          int green = (int)(serverCapacities.get(roomNum) * 255);
+//          System.out.println("Green: " + green + " Red: " + (255-green));
+//          userIcon.setFill(Color.web(String.format("rgb(%d,%d,%d)", 255 - green, green, 0)));
+                    userIcon.setFill(Color.RED);
+                    MenuItem join = new MenuItem("Join");
+                    join.setOnAction(e -> {
+                        features.sendTextOut("/join " + roomNum);
+                    });
+                    button = new MenuButton(item, userIcon, join);
+                }
+
+                button.setMaxWidth(Double.MAX_VALUE);
+                setGraphic(button);
             }
         }
     }
@@ -253,6 +329,10 @@ public class FXMLController {
         int green = ((int)(Math.random() * 255)) + 1;
         int blue = ((int)(Math.random() * 255)) + 1;
         return Color.web(String.format("rgb(%d,%d,%d)", red, green, blue));
+    }
+
+    private String retrieveDate(String msg) {
+        return msg.substring(0, msg.indexOf("]") + 1);
     }
 
 //    public void setDarkMode() {

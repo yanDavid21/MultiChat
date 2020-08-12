@@ -398,9 +398,9 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     for(String word : words) {
       // if the word equals an emoji name (ex. <3) then replace it with html image code
       String currentWord = word.trim();
-      if(MultiChatView.EMOTES.containsKey(currentWord)) {
+      if(MultiChatView.FXEMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()
-            .getResource("client/resources/images/emojis/" + MultiChatView.EMOTES.get(
+            .getResource("client/resources/images/emojis/" + MultiChatView.FXEMOTES.get(
                 currentWord)).toString() + "\" alt = \"error\" width = \"20\" height = \"20\">");
       } else if(MultiChatView.TWITCH_EMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()
