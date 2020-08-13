@@ -61,6 +61,12 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         view.setActiveUsers(names);
       } else if (line.startsWith("MESSAGEHELP ")) {
         view.appendChatLog(line.substring(12), "orange", false);
+      } else if(line.startsWith("VOTEKICK ")) {
+        view.appendChatLog(line.substring(9), "orange", false);
+      } else if(line.startsWith("FAILEDVOTEKICK ")) {
+        view.appendChatLog(line.substring(15), "red", false);
+      } else if (line.startsWith("SUCCESSFULVOTEKICK ")) {
+        view.appendChatLog(line.substring(19), "red", false);
       } else if (line.startsWith("ACTIVESERVERLIST ")) {
         String[] arr = line.substring(17).split(",");
         List<String> servers = Arrays.asList(arr);
