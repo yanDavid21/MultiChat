@@ -139,6 +139,8 @@ public class MultiChatServer {
           System.out.println(serverList);
           updateServerList();
         }
+        socketToMasterServer.close();
+        System.exit(2);
       } catch (IOException e) {
         e.printStackTrace();
       }

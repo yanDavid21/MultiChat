@@ -2,6 +2,7 @@ package client.view.javafxView;
 
 import client.controller.Features;
 import client.view.MultiChatView;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +26,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.HashMap;
@@ -41,6 +43,8 @@ public class FXMLController {
     private VBox chatLog;
     @FXML
     private ScrollPane scrollPane;
+    @FXML
+    private HBox test;
 
     @FXML
     private ListView<String> userListView = new ListView<>();
@@ -49,8 +53,10 @@ public class FXMLController {
 
     private ObservableList<String> userList = FXCollections.observableArrayList();
     private ObservableList<String> serverList = FXCollections.observableArrayList();
-
     private Map<String, Color> nameColors = new HashMap<>();
+
+    private TranslateTransition slideLeft;
+    private TranslateTransition slideRight;
 
     public void setFeatures(Features features) {
         this.features = features;
@@ -61,6 +67,7 @@ public class FXMLController {
         scrollPane.vvalueProperty().bind(chatLog.heightProperty());
         this.serverListView.setItems(serverList);
         this.userListView.setItems(userList);
+        prepareButtonAnimation();
     }
 
     public void onEnter(KeyEvent ke) {
@@ -279,16 +286,28 @@ public class FXMLController {
     @FXML
     private void openFileExplorer() {
         Platform.runLater(() -> {
+            FileChooser dialog = new FileChooser();
+            dialog.setTitle("Select a file to upload.");
+            File selected = dialog.showOpenDialog(scene.getWindow());
+            if (!(selected == null)) {
+                if (selected.length() > 25000000) {
 
+                } else {
+
+                }
+            }
         });
-//        FileChooser dialog = new FileChooser();
-//        dialog.setTitle("Select a file to upload.");
-//        File selected = dialog.showOpenDialog(scene.getWindow());
-//        if (selected.length() > 25000000) {
-//
-//        } else {
-//
-//        }
+    }
+
+    @FXML
+    private void showButtonPanel() {
+        Platform.runLater(() -> {
+            if(test.getTranslateX() == 600){
+                slideLeft.play();
+            }else{
+                slideRight.play();
+            }
+        });
     }
 
     private class Cell extends ListCell<String> {
@@ -338,6 +357,14 @@ public class FXMLController {
 
     private String retrieveDate(String msg) {
         return msg.substring(0, msg.indexOf("]") + 1);
+    }
+
+    private void prepareButtonAnimation() {
+        slideLeft = new TranslateTransition(new Duration(350), test);
+        slideLeft.setToX(0);
+        slideRight = new TranslateTransition(new Duration(350), test);
+        slideRight.setToX(600);
+
     }
 
 //    public void setDarkMode() {
