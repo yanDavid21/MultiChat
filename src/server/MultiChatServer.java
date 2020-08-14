@@ -24,7 +24,7 @@ import javax.net.ssl.SSLSocket;
 public class MultiChatServer {
 
     //holds the names of active clients and their respective client
-    private static HashMap<String, SSLSocket> users = new HashMap<>();
+    private static Map<String, Task> users = new HashMap<>();
 
     //a set of writers that write to the output of a client's socket
     private static HashSet<PrintWriter> outputWriters = new HashSet<>();
@@ -206,7 +206,7 @@ public class MultiChatServer {
                 synchronized (users) {
                     if (!name.isBlank() && !users.keySet().contains(name) && !name.contains(",") &&
                             !name.contains(":")) {
-                        users.put(name, this.clientSocket);
+                        users.put(name, this);
                         break;
                     }
                 }
@@ -249,7 +249,11 @@ public class MultiChatServer {
                     out.println("MESSAGEHELP " + input.substring(23));
                 } else if (input.startsWith("/votekick ")) {
                     printVoteKickMessage(input.substring(10));
-                } else {
+                } else if(input.toLowerCase().startsWith("/whisper ")) {
+                    String receiver = input.substring(9, input.indexOf(":", 1));
+                    String msg = input.substring(input.indexOf(": ", 1) + 1);
+                    printWhisper(receiver, msg);}
+                else {
                     for (PrintWriter writer : outputWriters) {
                         writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);
                     }
@@ -370,8 +374,9 @@ public class MultiChatServer {
             }
 
             try {
-                users.get(curVictim).close();
+                users.get(curVictim).clientSocket.close();
                 users.remove(curVictim);
+                System.out.println("[" + new Date() + "] " + curVictim + " was kicked");
                 updateActiveUsers();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -398,6 +403,11 @@ public class MultiChatServer {
                 }
                 writer.println(activeUserList.toString());
             }
+        }
+
+        private void printWhisper(String receiver, String msg) {
+            users.get(receiver).out.println("WHISPER " + "[" + new Date().toString() + "] " + name + ": " + msg);
+            out.println("WHISPER " + "[" + new Date().toString() + "] " + name + ": " + msg);
         }
     }
 

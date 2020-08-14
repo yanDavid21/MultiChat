@@ -104,7 +104,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   }
 
   @Override
-  public void appendChatLog(String s, String color, boolean hasDate) {
+  public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
     String toAdd = "";
     if (hasDate) {
       toAdd = "<span style=\"color:" + color + "\">" + convertEmoteIfAny(removeHTML(formatDate(s)))
@@ -399,9 +399,9 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     for(String word : words) {
       // if the word equals an emoji name (ex. <3) then replace it with html image code
       String currentWord = word.trim();
-      if(MultiChatView.HTMLEMOTES.containsKey(currentWord)) {
+      if(MultiChatView.HTML_EMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()
-            .getResource("client/resources/images/emojis/" + MultiChatView.HTMLEMOTES.get(
+            .getResource("client/resources/images/emojis/" + MultiChatView.HTML_EMOTES.get(
                 currentWord)).toString() + "\" alt = \"error\" width = \"20\" height = \"20\">");
       } else if(MultiChatView.TWITCH_EMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()

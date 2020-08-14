@@ -10,6 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.effect.BoxBlur?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="client.view.javafxView.FXMLController"
@@ -55,15 +56,29 @@
                             </padding>
                         </VBox>
                     </ScrollPane>
-                    <HBox fx:id = "fileButtons" prefHeight = "50" translateY = "450"  spacing = "10">
-                        <padding>
-                            <Insets top="10" right="10" bottom="10" left="10"/>
-                        </padding>
-                       <Button onAction="#openFileExplorer"> Images </Button>
-                        <Button> Files </Button>
-                        <Button> Voice Recording </Button>
-                        <Button> Link </Button>
-                    </HBox>
+                    <StackPane fx:id = "fileButtons" prefHeight = "50" translateY = "450">
+                        <HBox>
+                            <style>
+                                -fx-background-color: rgba(255, 255, 255, 0.5);
+                            </style>
+                            <effect>
+                                <BoxBlur>
+                                </BoxBlur>
+                            </effect>
+                        </HBox>
+                        <HBox spacing = "10">
+                            <style>
+                                -fx-background-color: transparent;
+                            </style>
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <Button onAction="#openFileExplorer"> Images </Button>
+                            <Button> Files </Button>
+                            <Button> Voice Recording </Button>
+                            <Button> Link </Button>
+                        </HBox>
+                    </StackPane>
                 </StackPane>
             </VBox>
             <HBox spacing="10" alignment="CENTER">
