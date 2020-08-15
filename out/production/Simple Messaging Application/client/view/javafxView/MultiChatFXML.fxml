@@ -11,6 +11,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.effect.BoxBlur?>
+<?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="client.view.javafxView.FXMLController"
@@ -56,29 +57,59 @@
                             </padding>
                         </VBox>
                     </ScrollPane>
-                    <StackPane fx:id = "fileButtons" prefHeight = "50" translateY = "450">
-                        <HBox>
-                            <style>
-                                -fx-background-color: rgba(255, 255, 255, 0.5);
-                            </style>
-                            <effect>
-                                <BoxBlur>
-                                </BoxBlur>
-                            </effect>
-                        </HBox>
-                        <HBox spacing = "10">
-                            <style>
-                                -fx-background-color: transparent;
-                            </style>
+                    <VBox fx:id = "fileButtons"  translateY = "450">
+                        <style>
+                            -fx-background-color: rgba(255, 255, 255, 0.5);
+                        </style>
+                        <HBox spacing = "10" prefHeight = "50">
                             <padding>
                                 <Insets top="10" right="10" bottom="10" left="10"/>
                             </padding>
-                            <Button onAction="#openFileExplorer"> Images </Button>
-                            <Button> Files </Button>
+                            <Button onAction="#openFileExplorer"> Upload Images </Button>
+                            <Button> Upload Files </Button>
                             <Button> Voice Recording </Button>
-                            <Button> Link </Button>
+                            <Button onAction = "#showEmotePanel"> Emotes </Button>
                         </HBox>
-                    </StackPane>
+                        <ScrollPane prefHeight = "100"  prefWidth = "600" >
+                            <padding>
+                                <Insets top = "5" right = "5" bottom = "5" left = "5"></Insets>
+                            </padding>
+                            <VBox>
+                                <padding>
+                                    <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                </padding>
+                                <style>
+                                    -fx-border-color: blue;
+                                    -fx-border-width: 1;
+                                    -fx-border-insets: 3;
+                                </style>
+                                <Text>
+                                    <style>
+                                        -fx-font: 15px Verdana;
+                                    </style>
+                                    Standard
+                                </Text>
+                                <GridPane fx:id = "standardEmotePanel" vgap = "5" hgap = "5">
+                                    <padding>
+                                        <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    </padding>
+                                </GridPane>
+                                <Separator></Separator>
+                                <Text>
+                                    <style>
+                                        -fx-font: 15px Verdana;
+                                    </style>
+                                    Twitch
+                                </Text>
+                                <GridPane fx:id = "twitchEmotePanel" vgap = "5" hgap = "5">
+                                    <padding>
+                                        <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    </padding>
+                                </GridPane>
+                            </VBox>
+
+                        </ScrollPane>
+                    </VBox>
                 </StackPane>
             </VBox>
             <HBox spacing="10" alignment="CENTER">
@@ -95,9 +126,12 @@
                     </style>
                 </Button>
                 <Separator orientation="VERTICAL"></Separator>
-                <TextArea promptText="Type here..." fx:id="chatField" maxHeight="30" wrapText="true"
+                <TextArea promptText="Type here..." fx:id="chatField" maxHeight="10" wrapText="true"
                           onKeyPressed="#onEnter" prefWidth="500">
                     <style>
+                        -fx-focus-color: transparent;
+                        -fx-background-color: rgba(255, 255, 255, 1);
+                        -fx-padding: 0.333333em 1em 0.333333em 1em;
                         -fx-border-radius: 20;
                         -fx-background-radius: 20;
                     </style>

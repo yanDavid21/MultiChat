@@ -16,9 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -44,7 +42,11 @@ public class FXMLController {
     @FXML
     private ScrollPane scrollPane;
     @FXML
-    private StackPane fileButtons;
+    private VBox fileButtons;
+    @FXML
+    private GridPane twitchEmotePanel;
+    @FXML
+    private GridPane standardEmotePanel;
 
     @FXML
     private ListView<String> userListView = new ListView<>();
@@ -57,6 +59,7 @@ public class FXMLController {
 
     private TranslateTransition slideUp;
     private TranslateTransition slideDown;
+    private TranslateTransition slideFurtherUp;
 
     public void setFeatures(Features features) {
         this.features = features;
@@ -68,6 +71,8 @@ public class FXMLController {
         this.serverListView.setItems(serverList);
         this.userListView.setItems(userList);
         prepareButtonAnimation();
+        initializeEmotePanels(MultiChatView.FXEMOTES,"/client/resources/images/emojis/", standardEmotePanel);
+        initializeEmotePanels(MultiChatView.TWITCH_EMOTES,"/client/resources/images/twitch/", twitchEmotePanel);
     }
 
     public void onEnter(KeyEvent ke) {
@@ -306,7 +311,7 @@ public class FXMLController {
                 if (selected.length() > 25000000) {
 
                 } else {
-
+                    appendChatLog("The file size cannot exceed 25mb.", "orange", false, "MESSAGEHELP");
                 }
             }
         });
@@ -363,7 +368,6 @@ public class FXMLController {
                     });
                     button = new MenuButton(item, userIcon, join);
                 }
-
                 button.setMaxWidth(Double.MAX_VALUE);
                 setGraphic(button);
             }
@@ -386,7 +390,48 @@ public class FXMLController {
         slideUp.setToY(400);
         slideDown = new TranslateTransition(new Duration(300), fileButtons);
         slideDown.setToY(450);
+        slideFurtherUp = new TranslateTransition(new Duration(300), fileButtons);
+        slideFurtherUp.setToY(300);
     }
+
+    @FXML
+    private void showEmotePanel() {
+        if (fileButtons.getTranslateY() == 300) {
+            slideUp.play();
+        } else {
+            slideFurtherUp.play();
+        }
+
+    }
+
+    private void initializeEmotePanels(Map<String, String> map, String path, GridPane panel) {
+        int column = 0;
+        int row = 0;
+        for (String emote : map.keySet()) {
+            Button emoteButton = new Button();
+            emoteButton.setMinSize(30, 30);
+            emoteButton.setMaxSize(30, 30);
+            Image image = new Image(getClass().getResource(path + map.get(emote)).toExternalForm(),
+                        emoteButton.getWidth(), emoteButton.getHeight(), false, true, true);
+            BackgroundImage bImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
+                    BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
+                    new BackgroundSize(emoteButton.getWidth(), emoteButton.getHeight(), true, true, true, false));
+
+            Background backGround = new Background(bImage);
+            emoteButton.setBackground(backGround);
+            emoteButton.setOnAction(e -> {
+                features.sendTextOut(emote);
+            });
+            panel.add(emoteButton, column, row);
+            column++;
+            if (column >= 16) {
+                row ++;
+                column = 0;
+            }
+        }
+
+    }
+}
 
 //    public void setDarkMode() {
 //        if(darkModeMenuItem.isSelected()) {
@@ -397,4 +442,3 @@ public class FXMLController {
 //            scene.getStylesheets().remove(getClass().getResource("Darkmode.css").toExternalForm());
 //        }
 //    }
-}

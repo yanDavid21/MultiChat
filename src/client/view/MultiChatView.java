@@ -41,7 +41,7 @@ public interface MultiChatView {
   );
 
   Map<String, String> TWITCH_EMOTES = Map.ofEntries(
-          entry("PepeHands", "PepeHands.png"),
+          entry("PepeHands", "Pepehands.png"),
           entry("Pepega", "Pepega.png"),
           entry("Kappa", "Kappa.png"),
           entry("forsenCD", "forsenCD.jpg"),
