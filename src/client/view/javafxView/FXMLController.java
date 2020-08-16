@@ -24,6 +24,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -65,11 +67,12 @@ public class FXMLController {
         this.features = features;
     }
 
-    public void setScene(Scene scene) {
+    public void initialize(Scene scene) {
         this.scene = scene;
         scrollPane.vvalueProperty().bind(chatLog.heightProperty());
         this.serverListView.setItems(serverList);
         this.userListView.setItems(userList);
+        chatField.requestFocus();
         prepareButtonAnimation();
         initializeEmotePanels(MultiChatView.FXEMOTES,"/client/resources/images/emojis/", standardEmotePanel);
         initializeEmotePanels(MultiChatView.TWITCH_EMOTES,"/client/resources/images/twitch/", twitchEmotePanel);
@@ -328,6 +331,16 @@ public class FXMLController {
         });
     }
 
+    @FXML
+    private void openSettingsPanel() {
+
+    }
+
+    @FXML
+    private void openNewChatWindow() {
+        new NewChatWindow();
+    }
+
     private class Cell extends ListCell<String> {
         private boolean isUserList;
 
@@ -346,7 +359,6 @@ public class FXMLController {
                 Circle userIcon = new Circle(5);
                 if(isUserList) {
                     userIcon.setFill(nameColors.get(item));
-
                     MenuItem privateMessage = new MenuItem("Private Message");
                     MenuItem whisper = new MenuItem("Whisper");
                     MenuItem kick = new MenuItem("Kick");
@@ -358,7 +370,7 @@ public class FXMLController {
                         });
                     });
                     kick.setOnAction(e -> features.sendTextOut("/votekick " + item));
-                    button = new MenuButton(item, userIcon, privateMessage, whisper, kick);
+                    button = new MenuButton(item, userIcon, privateMessage, whisper, new SeparatorMenuItem(), kick);
                 } else {
                     int roomNum = Integer.parseInt(item.split(" ")[1]);
                     userIcon.setFill(Color.GREEN);
@@ -430,6 +442,38 @@ public class FXMLController {
             }
         }
 
+    }
+
+    private class NewChatWindow {
+        private NewChatWindow() {
+            ObservableList<String> otherUsers = FXCollections.observableArrayList();
+            for (String user : userList) {
+                if (!user.equals(features.getClientUsername())) {
+                    otherUsers.add(user);
+                }
+            }
+
+            VBox layout = new VBox();
+            ImageView banner = new ImageView(new Image(getClass().getResourceAsStream(
+                    "/client/resources/logo/multichat_full_logo.png")));
+            VBox textAndList = new VBox();
+            textAndList.setPadding(new Insets(5, 5, 5, 5));
+            textAndList.setSpacing(5);
+            Text header = new Text("Please select a user to start chatting with.");
+            header.setFont(new Font("Verdana", 12));
+            ListView<String> displayNames = new ListView<>();
+            displayNames.setItems(otherUsers);
+            textAndList.getChildren().addAll(header, displayNames);
+            layout.getChildren().addAll(banner, textAndList);
+
+            Stage newChatWindow = new Stage();
+            newChatWindow.initModality(Modality.APPLICATION_MODAL);
+            newChatWindow.setScene(new Scene(layout));
+            newChatWindow.setTitle("Start a new chat");
+            newChatWindow.setResizable(false);
+            newChatWindow.sizeToScene();
+            newChatWindow.showAndWait();
+        }
     }
 }
 

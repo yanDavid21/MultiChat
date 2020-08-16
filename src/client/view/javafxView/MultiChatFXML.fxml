@@ -19,13 +19,40 @@
 
     <HBox minHeight="500">
         <VBox minWidth="200">
-            <HBox>
-                <ImageView fitWidth="50" fitHeight="50">
+            <StackPane alignment="CENTER_RIGHT">
+                <ImageView fitWidth="200" fitHeight="50" >
                     <image>
-                        <Image url="@/client/resources/logo/multichat_logo.png"/>
+                        <Image url="@/client/resources/logo/multichat_overhead.png"/>
                     </image>
                 </ImageView>
-            </HBox>
+                <Group>
+                    <HBox spacing = "10">
+                        <padding><Insets top = "10" right = "10" bottom = "10" left = "10"></Insets></padding>
+                        <Button focusTraversable="false" onAction = "#openSettingsPanel">
+                            <style>
+                                -fx-background-radius: 10em;
+                                -fx-focus-color: transparent;
+                                -fx-min-width: 30px;
+                                -fx-min-height: 30px;
+                                -fx-max-width: 30px;
+                                -fx-max-height: 30px;
+                                -fx-background-size: 100% 100%;
+                                -fx-background-color: transparent;
+                            </style>
+                        </Button>
+                        <Button focusTraversable="false" onAction = "#openNewChatWindow">
+                            <style>
+                                -fx-background-radius: 10em;
+                                -fx-focus-color: transparent;
+                                -fx-min-width: 30px;
+                                -fx-min-height: 30px;
+                                -fx-max-width: 30px;
+                                -fx-max-height: 30px;
+                            </style>
+                        </Button>
+                    </HBox>
+                </Group>
+            </StackPane>
             <TabPane>
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
@@ -46,7 +73,7 @@
             <VBox maxHeight = "550">
                 <ImageView id="boxImage" fitWidth="600" fitHeight="100">
                     <image>
-                        <Image url="@/client/resources/logo/multichat_full_logo.png"/>
+                        <Image url="@/client/resources/logo/multichat_banner.png"/>
                     </image>
                 </ImageView>
                 <StackPane maxHeight = "450">
@@ -117,11 +144,11 @@
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
                 <style>
-                    -fx-background-color: rgba(0, 100, 100, 1)
+                    -fx-background-color: rgba(0, 162, 232, 1)
                 </style>
                 <Button text = "+" onAction="#showButtonPanel">
                     <style>
-                        -fx-background-radius: 5em;
+                        -fx-background-radius: 1em;
                         -fx-font-size:15;
                     </style>
                 </Button>

@@ -133,7 +133,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
         Scene scene = new Scene(pane);
         window.setScene(scene);
         window.sizeToScene();
-        controller.setScene(scene);
+        controller.initialize(scene);
 
         //adds the icons to the taskbar and window frame
         window.getIcons().add(new Image(this.getClass().getResourceAsStream(
