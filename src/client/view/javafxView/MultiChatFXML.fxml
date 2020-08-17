@@ -28,7 +28,10 @@
                 <Group>
                     <HBox spacing = "10">
                         <padding><Insets top = "10" right = "10" bottom = "10" left = "10"></Insets></padding>
-                        <Button focusTraversable="false" onAction = "#openSettingsPanel">
+                        <Button focusTraversable="false" onAction = "#openNewChatWindow">
+                            <padding>
+                                <Insets top = "-1" right = "-1" bottom = "-1" left = "-1" ></Insets>
+                            </padding>
                             <style>
                                 -fx-background-radius: 10em;
                                 -fx-focus-color: transparent;
@@ -36,11 +39,9 @@
                                 -fx-min-height: 30px;
                                 -fx-max-width: 30px;
                                 -fx-max-height: 30px;
-                                -fx-background-size: 100% 100%;
-                                -fx-background-color: transparent;
                             </style>
                         </Button>
-                        <Button focusTraversable="false" onAction = "#openNewChatWindow">
+                        <Button focusTraversable="false" onAction = "#openSettingsPanel">
                             <style>
                                 -fx-background-radius: 10em;
                                 -fx-focus-color: transparent;

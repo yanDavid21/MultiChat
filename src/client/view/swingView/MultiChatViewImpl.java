@@ -158,6 +158,11 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     this.activeServers.setText(buildServerList.toString());
   }
 
+  @Override
+  public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
+    return;
+  }
+
   private class CenterPanel extends JPanel {
 
     private CenterPanel() {

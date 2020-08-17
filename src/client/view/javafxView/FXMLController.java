@@ -7,9 +7,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -29,9 +31,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 public class FXMLController {
     private Features features;
@@ -63,6 +64,8 @@ public class FXMLController {
     private TranslateTransition slideDown;
     private TranslateTransition slideFurtherUp;
 
+    private Set<PrivateMessagingController> privateMessagingWindows = new HashSet<>();
+
     public void setFeatures(Features features) {
         this.features = features;
     }
@@ -78,7 +81,8 @@ public class FXMLController {
         initializeEmotePanels(MultiChatView.TWITCH_EMOTES,"/client/resources/images/twitch/", twitchEmotePanel);
     }
 
-    public void onEnter(KeyEvent ke) {
+    @FXML
+    private void onEnter(KeyEvent ke) {
         String text = chatField.getText();
         if (ke.getCode() == KeyCode.ENTER) {
             if (text.isBlank()) {
@@ -96,10 +100,43 @@ public class FXMLController {
     }
 
     public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
-        if (hasDate) {
-            appendMessage(formatDate(s), getColor(color), hasDate, protocol);
+        if (protocol.equals("PRIVATEMESSAGE")) {
+            String[] components = s.substring(s.indexOf("]") + 2).split(": ");
+            String date = s.substring(0, s.indexOf("]") + 1);
+            String sender = components[0];
+            String receiver = components[1];
+            String messageAndReceiver = s.substring(s.indexOf(": ") + 2);
+            String message = messageAndReceiver.substring(messageAndReceiver.indexOf(": ") + 2);
+            if (sender.equals(features.getClientUsername())) { //if user sent this message
+                for (PrivateMessagingController con : privateMessagingWindows) {
+                    if(con.getReceiver().equals(receiver)) {
+                         con.appendChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
+                         return;
+                    }
+                }
+            } else { //incoming message
+                for (PrivateMessagingController con : privateMessagingWindows) {
+                    if(con.getReceiver().equals(sender)) {
+                        con.appendChatLog( date + " " + sender + ": " + message, color, hasDate, protocol);
+                        return;
+                    }
+                }
+                Platform.runLater(() ->{
+                    openPrivateMessagingWindow(sender);
+                    for (PrivateMessagingController con : privateMessagingWindows) {
+                        if(con.getReceiver().equals(sender)) {
+                            con.appendChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
+                            return;
+                        }
+                    }
+                });
+            }
         } else {
-            appendMessage(s, getColor(color), hasDate, protocol);
+            if (hasDate) {
+                appendMessage(formatDate(s), getColor(color), hasDate, protocol);
+            } else {
+                appendMessage(s, getColor(color), hasDate, protocol);
+            }
         }
     }
 
@@ -314,7 +351,8 @@ public class FXMLController {
                 if (selected.length() > 25000000) {
 
                 } else {
-                    appendChatLog("The file size cannot exceed 25mb.", "orange", false, "MESSAGEHELP");
+                    appendChatLog("The file size cannot exceed 25mb.", "orange", false,
+                            "MESSAGEHELP");
                 }
             }
         });
@@ -362,6 +400,7 @@ public class FXMLController {
                     MenuItem privateMessage = new MenuItem("Private Message");
                     MenuItem whisper = new MenuItem("Whisper");
                     MenuItem kick = new MenuItem("Kick");
+                    privateMessage.setOnAction(e -> openPrivateMessagingWindow(item));
                     whisper.setOnAction(e -> {
                         Platform.runLater(() -> {
                             chatField.setText("/whisper " + item + ": " + chatField.getText());
@@ -474,6 +513,48 @@ public class FXMLController {
             newChatWindow.sizeToScene();
             newChatWindow.showAndWait();
         }
+    }
+
+    private void openPrivateMessagingWindow(String receiver) {
+        if (features.getClientUsername().equals(receiver)) {
+            appendChatLog("You cannot privately message yourself.", "red", false, "MESSAGEHELP");
+            return;
+        }
+        for (PrivateMessagingController con : privateMessagingWindows) {
+            if (con.getReceiver().equals(receiver)) {
+                con.getWindow().toFront();
+                return;
+            }
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PrivateMessaging.fxml"));
+            Parent pane = loader.load();
+            Stage window = new Stage();
+            window.setScene(new Scene(pane));
+            PrivateMessagingController controller = loader.getController();
+            controller.initialize(receiver, features.getClientUsername(), features, window);
+            privateMessagingWindows.add(controller);
+            controller.appendChatLog("You are now privately messaging " +
+                    receiver + ".", "blue", false, "MESSAGEWELCOME");
+            window.sizeToScene();
+            window.setResizable(false);
+            window.setOnCloseRequest(e -> {
+                privateMessagingWindows.remove(controller);
+            });
+            window.setTitle("Private Messaging - " + receiver);
+            window.show();
+        } catch (IOException ioe) {
+            displayError(true,"Something went wrong: Unable to private message.");
+        }
+    }
+
+    public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR, errorMessage);
+            if (!remainRunningWhenClosed) {
+                alert.setOnCloseRequest(e -> System.exit(1));
+            }
+        });
     }
 }
 

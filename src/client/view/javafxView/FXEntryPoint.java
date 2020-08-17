@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -98,7 +99,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
         try {
             waitForNameLatch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            displayError(false, "Something went wrong: Name unsuccessfully sent.");
         }
         return name;
     }
@@ -111,6 +112,11 @@ public class FXEntryPoint extends Application implements MultiChatView {
     @Override
     public void setActiveServers(List<String> activeServers) {
         controller.setActiveServers(activeServers);
+    }
+
+    @Override
+    public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
+        controller.displayError(remainRunningWhenClosed, errorMessage);
     }
 
     @Override
