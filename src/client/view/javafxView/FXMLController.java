@@ -31,6 +31,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -162,9 +164,9 @@ public class FXMLController {
             messageContainer.setSpacing(2);
             bubbleWithMsg.setMaxWidth(Double.MAX_VALUE);
 
-            if (!protocol.equals("MESSAGE") && !protocol.equals("WHISPER")) {
+            if (!protocol.equals("MESSAGE") && !protocol.equals("WHISPER") && !protocol.equals("FILE")) {
                 messageContainer.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
-                bubbleWithMsg.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
+                bubbleWithMsg.setAlignment(Pos.CENTER);
             } else if (extractName(msg).equals(features.getClientUsername())) {
                 //if it is user text and sent by the user, align to right
                 messageContainer.setAlignment(Pos.BASELINE_RIGHT);
@@ -175,7 +177,12 @@ public class FXMLController {
                 bubbleWithMsg.setAlignment(Pos.BASELINE_LEFT);
             }
 
-            HBox surface = textMessageWithImages(words, c); //contains the texts and images sent
+            HBox surface;
+            if (protocol.equals("FILE")) {
+                surface = createSurfaceWithHyperLink(msg);
+            } else {
+                surface = textMessageWithImages(words, c); //contains the texts and images sent
+            }
             //holds the surface HBox to ensure stackpane alignment affects all children
             Group message = new Group(surface);
             Rectangle rect;
@@ -187,14 +194,7 @@ public class FXMLController {
                 rect = getBubbleGraphic(surface, restOfMessage, protocol); //the bubble underneath
                 //have the stackpane include text and a bubble underneath
                 bubbleWithMsg.getChildren().addAll(rect, message);
-                if (protocol.equals("WHISPER")){
-                    Text fromMessage = new Text(extractName(msg) + " whispered to you: ");
-                    fromMessage.setFill(Color.GREY);
-                    fromMessage.setFont(new Font("Verdana", 8));
-                    messageContainer.getChildren().addAll(fromMessage, bubbleWithMsg, dateText);
-                } else {
-                    messageContainer.getChildren().addAll(bubbleWithMsg, dateText);
-                }
+                messageContainer.getChildren().addAll(bubbleWithMsg, dateText);
             } else {
                 rect = getBubbleGraphic(surface, msg, protocol); //the bubble underneath
                 //have the stackpane include text and a bubble underneath
@@ -203,7 +203,6 @@ public class FXMLController {
             }
 
             chatLog.getChildren().add(messageContainer); //append the stackpane to the chatlog
-
 
         });
     }
@@ -242,7 +241,7 @@ public class FXMLController {
         rect.setHeight(surface.prefHeight(-1));
         rect.setArcWidth(20);
         rect.setArcHeight(20);
-        if (protocol.equals("MESSAGE")) {
+        if (protocol.equals("MESSAGE") || protocol.equals("FILE")) {
             if (extractName(msg).equals(features.getClientUsername())) {
                 rect.setFill(Color.CORNFLOWERBLUE);
             } else {
@@ -278,6 +277,33 @@ public class FXMLController {
             default:
                 return Color.BLACK;
         }
+    }
+
+    private HBox createSurfaceWithHyperLink(String msg) {
+        HBox surface = new HBox();
+        surface.setPadding(new Insets(5,5,5,5));
+        surface.setAlignment(Pos.CENTER);
+        Text name = new Text(extractName(msg) + ": ");
+        String filename = msg.substring(msg.indexOf(": ") + 1);
+        Hyperlink link = new Hyperlink(filename);
+        link.setOnAction(e -> features.sendTextOut("/requestfile " + filename));
+//      link.setOnAction(e -> {
+//      FileChooser fileChooser = new FileChooser();
+//      fileChooser.setTitle("Save File");
+//      File file = fileChooser.showSaveDialog(scene.getWindow());
+//      if (file != null) {
+//        try {
+//          ImageIO.write(SwingFXUtils.fromFXImage(image from bytes,
+//              null), "png", file);
+//        } catch (IOException ex) {
+//          System.out.println(ex.getMessage());
+//        }
+//      }
+//    });
+        surface.getChildren().addAll(name, link);
+        System.out.println(surface.getWidth());
+        System.out.println(surface.prefWidth(-1));
+        return surface;
     }
 
     public void setTextFieldEditable(boolean b) {
@@ -348,8 +374,38 @@ public class FXMLController {
             dialog.setTitle("Select a file to upload.");
             File selected = dialog.showOpenDialog(scene.getWindow());
             if (!(selected == null)) {
-                if (selected.length() > 25000000) {
+                if (selected.length() <= 25000000) {
+                    try {
+                        features.sendFile(selected.getName(), selected.length(), selected);
+                    } catch (IOException ioe) {
+                        displayError(true, "Something went wrong: Error fetching file.");
+                    }
+                } else {
+                    appendChatLog("The file size cannot exceed 25mb.", "orange", false,
+                            "MESSAGEHELP");
+                }
+            }
+        });
+    }
 
+    @FXML
+    private void openImageExplorer() {
+        Platform.runLater(() -> {
+            FileChooser dialog = new FileChooser();
+            dialog.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("All Images", "*.*"),
+                    new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                    new FileChooser.ExtensionFilter("PNG", "*.png")
+            );
+            dialog.setTitle("Select a file to upload.");
+            File selected = dialog.showOpenDialog(scene.getWindow());
+            if (!(selected == null)) {
+                if (selected.length() <= 25000000) {
+                    try {
+                        features.sendFile(selected.getName(), selected.length(), selected);
+                    } catch (IOException ioe) {
+                        displayError(true, "Something went wrong: Error fetching file.");
+                    }
                 } else {
                     appendChatLog("The file size cannot exceed 25mb.", "orange", false,
                             "MESSAGEHELP");
@@ -371,7 +427,7 @@ public class FXMLController {
 
     @FXML
     private void openSettingsPanel() {
-
+       // new NewSettingsWindow();
     }
 
     @FXML
@@ -485,6 +541,7 @@ public class FXMLController {
 
     private class NewChatWindow {
         private NewChatWindow() {
+
             ObservableList<String> otherUsers = FXCollections.observableArrayList();
             for (String user : userList) {
                 if (!user.equals(features.getClientUsername())) {
@@ -492,6 +549,7 @@ public class FXMLController {
                 }
             }
 
+            Stage newChatWindow = new Stage();
             VBox layout = new VBox();
             ImageView banner = new ImageView(new Image(getClass().getResourceAsStream(
                     "/client/resources/logo/multichat_full_logo.png")));
@@ -502,18 +560,32 @@ public class FXMLController {
             header.setFont(new Font("Verdana", 12));
             ListView<String> displayNames = new ListView<>();
             displayNames.setItems(otherUsers);
-            textAndList.getChildren().addAll(header, displayNames);
-            layout.getChildren().addAll(banner, textAndList);
 
-            Stage newChatWindow = new Stage();
+            Button submit = new Button("Create Chat");
+            textAndList.setAlignment(Pos.CENTER);
+            textAndList.getChildren().addAll(header, displayNames, submit);
+            layout.getChildren().addAll(banner, textAndList);
+            layout.setAlignment(Pos.CENTER);
+            submit.setOnAction(e -> {
+                String chosen = displayNames.getSelectionModel().getSelectedItem();
+                if(chosen != null) {
+                    openPrivateMessagingWindow(chosen);
+                    newChatWindow.close();
+                }
+            });
+
             newChatWindow.initModality(Modality.APPLICATION_MODAL);
             newChatWindow.setScene(new Scene(layout));
             newChatWindow.setTitle("Start a new chat");
             newChatWindow.setResizable(false);
             newChatWindow.sizeToScene();
             newChatWindow.showAndWait();
+
+
         }
     }
+
+
 
     private void openPrivateMessagingWindow(String receiver) {
         if (features.getClientUsername().equals(receiver)) {

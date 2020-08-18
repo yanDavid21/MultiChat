@@ -32,6 +32,13 @@
                             <padding>
                                 <Insets top = "-1" right = "-1" bottom = "-1" left = "-1" ></Insets>
                             </padding>
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/client/resources/logo/new_message_icon.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
                             <style>
                                 -fx-background-radius: 10em;
                                 -fx-focus-color: transparent;
@@ -42,6 +49,13 @@
                             </style>
                         </Button>
                         <Button focusTraversable="false" onAction = "#openSettingsPanel">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/client/resources/logo/settings_icon.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
                             <style>
                                 -fx-background-radius: 10em;
                                 -fx-focus-color: transparent;
@@ -49,6 +63,7 @@
                                 -fx-min-height: 30px;
                                 -fx-max-width: 30px;
                                 -fx-max-height: 30px;
+
                             </style>
                         </Button>
                     </HBox>
@@ -93,8 +108,8 @@
                             <padding>
                                 <Insets top="10" right="10" bottom="10" left="10"/>
                             </padding>
-                            <Button onAction="#openFileExplorer"> Upload Images </Button>
-                            <Button> Upload Files </Button>
+                            <Button onAction="#openImageExplorer"> Upload Images </Button>
+                            <Button onAction = "#openFileExplorer"> Upload Files </Button>
                             <Button> Voice Recording </Button>
                             <Button onAction = "#showEmotePanel"> Emotes </Button>
                         </HBox>

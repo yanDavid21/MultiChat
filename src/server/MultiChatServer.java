@@ -1,7 +1,6 @@
 package server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -261,6 +260,31 @@ public class MultiChatServer {
                     String messageAndReceiver = inputWithoutDate.substring(inputWithoutDate.indexOf(": ") + 2);
                     String message = messageAndReceiver.substring(messageAndReceiver.indexOf(": ") + 2);
                     printPrivMsg(sender, receiver, message);
+                } else if (input.toLowerCase().startsWith("/image ")) {
+                    String name =  input.substring(7, input.indexOf(":"));
+                    String fileName = input.substring(8 + name.length(), input.lastIndexOf(":"));
+                    int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
+                    System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
+                    //create a new fileoutputstream for each new file
+                    try{
+                        byte[]buf = new byte[4096];
+                        FileOutputStream fos = new FileOutputStream(fileName);
+                        //read file
+                        while(fileSize > 0 && clientSocket.getInputStream().read(
+                                buf, 0, Math.min(buf.length, fileSize)) > -1){
+                            fos.write(buf,0, buf.length);
+                            fos.flush();
+                            fileSize -= buf.length;
+                        }
+                        fos.close();
+                        for (PrintWriter writer : outputWriters) {
+                            writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
+                        }
+                    } catch (FileNotFoundException fnfe) {
+                        out.println("FAILEDFILETRANSFER Improper file name.");
+                    } catch (IOException ioe) {
+                        out.println("FAILEDFILETRANSFER Error communicating to server.");
+                    }
                 } else {
                     for (PrintWriter writer : outputWriters) {
                         writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);

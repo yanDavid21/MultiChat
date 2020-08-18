@@ -2,6 +2,8 @@ package client.controller;
 
 import client.model.MultiChatModel;
 import client.view.MultiChatView;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -75,6 +77,10 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         view.appendChatLog(line.substring(8), "white", true, "WHISPER");
       } else if(line.startsWith("PRIVATEMESSAGE ")) {
         view.appendChatLog(line.substring(15), "black", true, "PRIVATEMESSAGE");
+      } else if(line.startsWith("FILE ")) {
+        view.appendChatLog(line.substring(5), "black", true, "FILE");
+      } else if(line.startsWith("FAILEDFILETRANSFER ")) {
+        view.appendChatLog("File failed to send.", "red", false, "FAILEDFILETRANSFER");
       } else if (line.startsWith("REQUESTEDNEWROOM ")) {
         try {
           MultiChatModel newModel = model.switchPorts(line.substring(17));
@@ -99,5 +105,10 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
   @Override
   public String getClientUsername() {
     return model.getUsername();
+  }
+
+  @Override
+  public void sendFile(String fileName, long fileSize, File file) throws IOException{
+    model.sendFile(fileName, fileSize, file);
   }
 }
