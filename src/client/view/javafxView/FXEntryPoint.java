@@ -9,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -19,6 +18,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -117,6 +118,11 @@ public class FXEntryPoint extends Application implements MultiChatView {
     @Override
     public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
         controller.displayError(remainRunningWhenClosed, errorMessage);
+    }
+
+    @Override
+    public File showSaveDialog(String fileName) {
+       return controller.showSaveDialog(fileName);
     }
 
     @Override

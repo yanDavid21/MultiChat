@@ -3,6 +3,7 @@ package client.view.swingView;
 import client.controller.Features;
 import client.view.MultiChatView;
 import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -161,6 +162,11 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   @Override
   public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
     return;
+  }
+
+  @Override
+  public File showSaveDialog(String fileName) {
+    return null;
   }
 
   private class CenterPanel extends JPanel {

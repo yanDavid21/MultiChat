@@ -7,6 +7,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Date;
 import java.util.Scanner;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -135,16 +136,40 @@ public class MultiChatClientModelImpl implements MultiChatModel {
     @Override
     public void sendFile(String fileName, long filesize, File file) throws IOException {
         System.out.println(fileName + " " + filesize);
-        out.println("/image " + name + ":" + fileName + ":" + filesize);
+        out.println("/file " + fileName + ":" + filesize);
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         byte[] buffer = new byte[4096];
-        while (bis.read(buffer, 0, (int)Math.min(buffer.length, filesize)) > -1) {
-            socket.getOutputStream().write(buffer, 0, buffer.length);
+        int amountRead;
+        while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
+            socket.getOutputStream().write(buffer, 0, amountRead);
         }
         socket.getOutputStream().flush();
         fis.close();
         bis.close();
+    }
+
+    @Override
+    public void saveFile(File file, long fileSize) {
+        try {
+            if (file != null) {
+
+                byte[] buf = new byte[4096];
+                FileOutputStream fos = new FileOutputStream(file);
+                //read file
+                while (fileSize > 0 && socket.getInputStream().read(
+                        buf, 0, (int) Math.min(buf.length, fileSize)) > -1) {
+                    fos.write(buf, 0, buf.length);
+                    fos.flush();
+                    fileSize -= buf.length;
+                }
+                fos.close();
+            } else {
+                socket.getInputStream().skip(fileSize);
+            }
+        } catch (IOException ioe) {
+            //TODO: handle
+        }
     }
 
 }

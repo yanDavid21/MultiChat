@@ -2,6 +2,7 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -260,31 +261,35 @@ public class MultiChatServer {
                     String messageAndReceiver = inputWithoutDate.substring(inputWithoutDate.indexOf(": ") + 2);
                     String message = messageAndReceiver.substring(messageAndReceiver.indexOf(": ") + 2);
                     printPrivMsg(sender, receiver, message);
-                } else if (input.toLowerCase().startsWith("/image ")) {
-                    String name =  input.substring(7, input.indexOf(":"));
-                    String fileName = input.substring(8 + name.length(), input.lastIndexOf(":"));
+                } else if (input.toLowerCase().startsWith("/file ")) {
+                    String fileName = input.substring(6, input.lastIndexOf(":"));
                     int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
                     System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
-                    //create a new fileoutputstream for each new file
-                    try{
-                        byte[]buf = new byte[4096];
-                        FileOutputStream fos = new FileOutputStream(fileName);
-                        //read file
-                        while(fileSize > 0 && clientSocket.getInputStream().read(
-                                buf, 0, Math.min(buf.length, fileSize)) > -1){
-                            fos.write(buf,0, buf.length);
-                            fos.flush();
-                            fileSize -= buf.length;
+                    readFileThenOutput(fileName, fileSize);
+                } else if (input.toLowerCase().startsWith("/requestfile ")) {
+                    try {
+                        String fileName = input.substring(13);
+                        System.out.print(fileName);
+                        URL url = getClass().getResource(fileName);
+                        File requested = new File(url.getPath());
+                        long fileSize = requested.length();
+                        byte[] buffer = new byte[4096];
+                        FileInputStream fis = new FileInputStream(requested);
+                        BufferedInputStream bis = new BufferedInputStream(fis);
+                        System.out.println("requested = " + requested);
+                        int amountRead;
+                        out.println("FILEDATA " + fileSize + ":" + fileName);
+                        while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
+                            clientSocket.getOutputStream().write(buffer, 0,  amountRead);
                         }
-                        fos.close();
-                        for (PrintWriter writer : outputWriters) {
-                            writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
-                        }
-                    } catch (FileNotFoundException fnfe) {
-                        out.println("FAILEDFILETRANSFER Improper file name.");
-                    } catch (IOException ioe) {
-                        out.println("FAILEDFILETRANSFER Error communicating to server.");
+                        clientSocket.getOutputStream().flush();
+                        fis.close();
+                        bis.close();
+                    } catch (IOException | NullPointerException ioe) {
+                        out.println("FAILEDFILETRANSFER Error fetching file.");
+                        ioe.printStackTrace();
                     }
+
                 } else {
                     for (PrintWriter writer : outputWriters) {
                         writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);
@@ -363,7 +368,11 @@ public class MultiChatServer {
             // if this is the first vote for someone, then start the votekick
             if (curVictim == null) {
                 for (PrintWriter writer : outputWriters) {
-                    writer.println("VOTEKICK Someone has started a votekick for " + victim + "!");
+                    if (writer.equals(out)) {
+                        writer.println("VOTEKICK You've started a votekick for " + victim + "!");
+                    } else {
+                        writer.println("VOTEKICK Someone has started a votekick for " + victim + "!");
+                    }
                 }
                 numVotes = 1;
                 curVictim = victim;
@@ -447,6 +456,30 @@ public class MultiChatServer {
                     sender + ": " + receiver + ": " + message);
             users.get(receiver).out.println("PRIVATEMESSAGE " + "[" + new Date().toString() + "] " +
                     sender + ": " + receiver + ": " + message);
+        }
+
+        private void readFileThenOutput(String fileName, int fileSize) {
+            System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
+            //create a new fileoutputstream for each new file
+            try{
+                byte[]buf = new byte[4096];
+                FileOutputStream fos = new FileOutputStream(fileName);
+                //read file
+                while(fileSize > 0 && clientSocket.getInputStream().read(
+                        buf, 0, Math.min(buf.length, fileSize)) > -1){
+                    fos.write(buf,0, buf.length);
+                    fos.flush();
+                    fileSize -= buf.length;
+                }
+                fos.close();
+                for (PrintWriter writer : outputWriters) {
+                    writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
+                }
+            } catch (FileNotFoundException fnfe) {
+                out.println("FAILEDFILETRANSFER Improper file name.");
+            } catch (IOException ioe) {
+                out.println("FAILEDFILETRANSFER Error communicating to server.");
+            }
         }
     }
 

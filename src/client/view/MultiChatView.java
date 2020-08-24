@@ -1,6 +1,8 @@
 package client.view;
 
 import client.controller.Features;
+
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -79,4 +81,6 @@ public interface MultiChatView {
   void setActiveServers(List<String> servers);
 
   void displayError(boolean remainRunningWhenClosed, String errorMessage);
+
+  File showSaveDialog(String fileName);
 }

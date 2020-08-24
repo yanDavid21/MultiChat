@@ -3,9 +3,9 @@ package client.controller;
 import client.model.MultiChatModel;
 import client.view.MultiChatView;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +35,7 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
     while(model.isConnectionRunning()) { //while the server and this client is still connected
 
       String line = model.getSocketInput(); //listen and capture what the server just communicated
+      System.out.println(line);
 
       //handle what the server communicated based on the pre-determined protocols (ie. SUBMITNAME & NAMEACCEPTED)
       if (line.startsWith("SUBMITNAME")) {
@@ -80,7 +81,11 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
       } else if(line.startsWith("FILE ")) {
         view.appendChatLog(line.substring(5), "black", true, "FILE");
       } else if(line.startsWith("FAILEDFILETRANSFER ")) {
-        view.appendChatLog("File failed to send.", "red", false, "FAILEDFILETRANSFER");
+        view.appendChatLog(line.substring(19), "red", false, "FAILEDFILETRANSFER");
+      } else if(line.startsWith("FILEDATA ")) {
+        File file = view.showSaveDialog(line.substring(line.indexOf(":") + 1));
+        long fileSize = Long.parseLong(line.substring(9, line.indexOf(":")));
+        model.saveFile(file, fileSize);
       } else if (line.startsWith("REQUESTEDNEWROOM ")) {
         try {
           MultiChatModel newModel = model.switchPorts(line.substring(17));
