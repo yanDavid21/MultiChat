@@ -322,6 +322,8 @@ public abstract class AbstractFXMLController {
             emoteButton.setOnAction(e -> {
                 features.sendTextOut(preface + emote);
             });
+            emoteButton.getStyleClass().clear();
+            emoteButton.getStyleClass().add("emote-button");
             panel.add(emoteButton, column, row);
             column++;
             if (column >= 16) {

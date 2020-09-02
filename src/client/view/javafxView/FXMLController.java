@@ -46,8 +46,8 @@ public class FXMLController extends AbstractFXMLController {
     private boolean isDarkMode = false;
     private boolean isMuted = false;
 
-    private NewChatPanel newChatPanel = new NewChatPanel();
-    private SettingsPanel settingsPanel = new SettingsPanel();
+    private final NewChatPanel newChatPanel = new NewChatPanel();
+    private final SettingsPanel settingsPanel = new SettingsPanel();
 
     @FXML
     private ListView<String> userListView = new ListView<>();
@@ -104,11 +104,12 @@ public class FXMLController extends AbstractFXMLController {
         Platform.runLater(() -> {
             FileChooser dialog = new FileChooser();
             dialog.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("All Images", "*.*"),
+                    new FileChooser.ExtensionFilter("All Images", "*.jpg", "*.png", "*.gif"),
                     new FileChooser.ExtensionFilter("PNG", "*.png"),
-                    new FileChooser.ExtensionFilter("JPG", "*.jpg")
+                    new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                    new FileChooser.ExtensionFilter("GIF", "*.gif")
             );
-            dialog.setTitle("Select a file to upload.");
+            dialog.setTitle("Select an image to upload.");
             File selected = dialog.showOpenDialog(scene.getWindow());
             if (!(selected == null)) {
                 if (selected.length() < 25000000) {

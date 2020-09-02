@@ -77,10 +77,7 @@
                             </padding>
                         </VBox>
                     </ScrollPane>
-                    <VBox fx:id = "fileButtons"  translateY = "450">
-                        <style>
-                            -fx-background-color: rgba(255, 255, 255, 0.5);
-                        </style>
+                    <VBox fx:id = "fileButtons"  translateY = "450" styleClass="file-buttons-panel">
                         <HBox spacing = "10" prefHeight = "50">
                             <padding>
                                 <Insets top="10" right="10" bottom="10" left="10"/>

@@ -2,7 +2,6 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -24,18 +23,18 @@ import javax.net.ssl.SSLSocket;
 public class MultiChatServer {
 
     //holds the names of active clients and their respective client
-    private static Map<String, Task> users = new HashMap<>();
+    private static final Map<String, Task> users = new HashMap<>();
 
     //a set of writers that write to the output of a client's socket
-    private static HashSet<PrintWriter> outputWriters = new HashSet<>();
+    private static final HashSet<PrintWriter> outputWriters = new HashSet<>();
 
     //a set of the current active servers
-    private static HashSet<String> serverNames = new HashSet();
+    private static final HashSet<String> serverNames = new HashSet<>();
 
     private static String curVictim = null;
     private static int numVotes = 0;
     private static Timer kickTimer = new Timer();
-    private static Set<String> alreadyVoted = new HashSet<>();
+    private static final Set<String> alreadyVoted = new HashSet<>();
 
     /**
      * Main method to start the MultiChat server and listens for 1<=x<=args connections on local port
@@ -43,8 +42,6 @@ public class MultiChatServer {
      * each connection and creating and running a Task for each connection.
      *
      * @param args command line arguments describing the desired number of clients
-     * @throws IOException              when a creation of ServerSocket fails and/or the listening for
-     *                                  a connection to the ServerSocket has failed.
      * @throws IllegalArgumentException when supplied more than one argument
      * @throws NumberFormatException    when given a non-integer argument.
      */
@@ -61,6 +58,29 @@ public class MultiChatServer {
             throw new IllegalArgumentException("Supplied more than 2 argument. Please enter zero or one "
                     + "integer only for number of desired clients.");
         }
+
+        new Thread(() -> {
+            Scanner input = new Scanner(System.in);
+            while(input.hasNextLine()) {
+                String command = input.nextLine();
+                switch (command) {
+                    case "exit":
+                        System.out.println("good");
+                        //send to all users its closing
+                        //maybe a timer?
+                        break;
+                    case "users":
+                        //get list of all users
+                        break;
+                    case "servers":
+                        //get list of all servers
+                        break;
+                    default:
+                        System.out.println("Invalid command.");
+                }
+            }
+            //delete user files
+        }).start();
 
         //starts the background process of communicating to a master server that keeps track of active
         //servers and updates the active servers on the existence of other servers
@@ -271,8 +291,6 @@ public class MultiChatServer {
                     try {
                         String fileOwner = input.substring(13, input.indexOf(":"));
                         String fileName = input.substring(input.indexOf(":") + 1);
-                        System.out.println(fileOwner);
-                        System.out.println(fileName);
                         File requested = new File("resources/tempFiles/"+fileOwner+"/"+fileName);
                         long fileSize = requested.length();
                         byte[] buffer = new byte[4096];

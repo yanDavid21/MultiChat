@@ -35,7 +35,6 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
     while(model.isConnectionRunning()) { //while the server and this client is still connected
 
       String line = model.getSocketInput(); //listen and capture what the server just communicated
-      System.out.println(line);
 
       //handle what the server communicated based on the pre-determined protocols (ie. SUBMITNAME & NAMEACCEPTED)
       if (line.startsWith("SUBMITNAME")) {

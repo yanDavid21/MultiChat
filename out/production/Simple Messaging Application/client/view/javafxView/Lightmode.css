@@ -18,3 +18,11 @@
     -fx-background-radius: 20;
     -fx-background-color: #FFFFFF;
 }
+
+.file-buttons-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.5);
+}
+
+.emote-button {
+    -fx-focus-traversable: false;
+}
