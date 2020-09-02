@@ -229,6 +229,7 @@ public class MultiChatServer {
             outputWriters.add(out);
             updateActiveUsers();
             updateServerList();
+            new File("resources/tempFiles/" + name).mkdirs();
             System.out.println("[" + new Date().toString() + "] " + name + " has joined.");
         }
 
@@ -268,10 +269,11 @@ public class MultiChatServer {
                     readFileThenOutput(fileName, fileSize);
                 } else if (input.toLowerCase().startsWith("/requestfile ")) {
                     try {
-                        String fileName = input.substring(13);
-                        System.out.print(fileName);
-                        URL url = getClass().getResource(fileName);
-                        File requested = new File(url.getPath());
+                        String fileOwner = input.substring(13, input.indexOf(":"));
+                        String fileName = input.substring(input.indexOf(":") + 1);
+                        System.out.println(fileOwner);
+                        System.out.println(fileName);
+                        File requested = new File("resources/tempFiles/"+fileOwner+"/"+fileName);
                         long fileSize = requested.length();
                         byte[] buffer = new byte[4096];
                         FileInputStream fis = new FileInputStream(requested);
@@ -463,7 +465,9 @@ public class MultiChatServer {
             //create a new fileoutputstream for each new file
             try{
                 byte[]buf = new byte[4096];
-                FileOutputStream fos = new FileOutputStream(fileName);
+                File file = new File("resources/tempFiles/" + name + "/" + fileName);
+                file.createNewFile();
+                FileOutputStream fos = new FileOutputStream(file);
                 //read file
                 while(fileSize > 0 && clientSocket.getInputStream().read(
                         buf, 0, Math.min(buf.length, fileSize)) > -1){

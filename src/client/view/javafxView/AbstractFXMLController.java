@@ -288,7 +288,7 @@ public abstract class AbstractFXMLController {
             name.setFill(Color.WHITE);
             link.setTextFill(Color.WHITE);
         }
-        link.setOnAction(e -> features.sendTextOut("/requestfile " + filename));
+        link.setOnAction(e -> features.sendTextOut("/requestfile " + extractName(msg) + ":" + filename));
         surface.getChildren().add(name);
         surface.getChildren().add(link);
         surface.setPrefWidth(name.prefWidth(-1) + link.prefWidth(-1) + 10);
