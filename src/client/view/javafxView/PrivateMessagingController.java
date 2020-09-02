@@ -3,6 +3,7 @@ package client.view.javafxView;
 import client.controller.Features;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -13,17 +14,19 @@ public class PrivateMessagingController extends AbstractFXMLController {
     private String receiver;
     private String sender;
     private Stage window;
+    private Scene scene;
 
     public PrivateMessagingController() {
         super();
     }
 
-    public void initialize(String receiver, String sender, Features features, Stage window) {
+    public void initialize(String receiver, String sender, Features features, Stage window, Scene scene) {
         super.initController();
         this.receiver = receiver;
         this.sender = sender;
         this.features = features;
         this.window = window;
+        this.scene = scene;
         this.preface = "/privatemsg " + sender + ": " + receiver + ": ";
     }
 
@@ -52,4 +55,6 @@ public class PrivateMessagingController extends AbstractFXMLController {
     public Stage getWindow() {
         return window;
     }
+
+    public Scene getScene() {return scene;}
 }

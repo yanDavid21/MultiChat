@@ -244,9 +244,15 @@ public class FXMLController extends AbstractFXMLController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("PrivateMessaging.fxml"));
             Parent pane = loader.load();
             Stage window = new Stage();
-            window.setScene(new Scene(pane));
+            Scene scene = new Scene(pane);
+            window.setScene(scene);
+            if (isDarkMode) {
+                scene.getStylesheets().add(getClass().getResource("Darkmode.css").toExternalForm());
+            } else {
+                scene.getStylesheets().add(getClass().getResource("Lightmode.css").toExternalForm());
+            }
             PrivateMessagingController controller = loader.getController();
-            controller.initialize(receiver, features.getClientUsername(), features, window);
+            controller.initialize(receiver, features.getClientUsername(), features, window, scene);
             privateMessagingWindows.add(controller);
             controller.appendChatLog("You are now privately messaging " +
                     receiver + ".", "blue", false, "MESSAGEWELCOME");
@@ -265,13 +271,25 @@ public class FXMLController extends AbstractFXMLController {
     private void setDarkMode(boolean isSelected) {
         isDarkMode = isSelected;
         if (isSelected) {
-            scene.getStylesheets().remove(getClass().getResource("Lightmode.css").toExternalForm());
-            scene.getStylesheets().add(getClass().getResource("Darkmode.css").toExternalForm());
-
+            changeStyleSheets(scene, "Lightmode.css", "Darkmode.css");
+            for (PrivateMessagingController con : privateMessagingWindows) {
+                changeStyleSheets(con.getScene(), "Lightmode.css", "Darkmode.css");
+            }
+            changeStyleSheets(settingsPanel.getScene(), "Lightmode.css", "Darkmode.css");
+            changeStyleSheets(newChatPanel.getScene(), "Lightmode.css", "Darkmode.css");
         } else {
-            scene.getStylesheets().remove(getClass().getResource("Darkmode.css").toExternalForm());
-            scene.getStylesheets().add(getClass().getResource("Lightmode.css").toExternalForm());
+            changeStyleSheets(scene, "Darkmode.css", "Lightmode.css");
+            for (PrivateMessagingController con : privateMessagingWindows) {
+                changeStyleSheets(con.getScene(), "Darkmode.css", "Lightmode.css");
+            }
+            changeStyleSheets(settingsPanel.getScene(), "Darkmode.css", "Lightmode.css");
+            changeStyleSheets(newChatPanel.getScene(), "Darkmode.css", "Lightmode.css");
         }
+    }
+
+    private void changeStyleSheets(Scene scene, String removedStyle, String addedStyle) {
+        scene.getStylesheets().remove(getClass().getResource(removedStyle).toExternalForm());
+        scene.getStylesheets().add(getClass().getResource(addedStyle).toExternalForm());
     }
 
     private void setChosenFile(File file) {
@@ -281,6 +299,7 @@ public class FXMLController extends AbstractFXMLController {
 
     private class NewChatPanel {
         private Stage newChatWindow;
+        private Scene scene;
         ObservableList<String> otherUsers = FXCollections.observableArrayList();
 
         private NewChatPanel() {
@@ -291,7 +310,7 @@ public class FXMLController extends AbstractFXMLController {
             VBox content = new VBox();
             content.setPadding(new Insets(5, 5, 5, 5));
             content.setSpacing(5);
-            Text header = new Text("Please select a user to start chatting with.");
+            Label header = new Label("Please select a user to start chatting with.");
             header.setFont(new Font("Verdana", 12));
             ListView<String> displayNames = new ListView<>();
             displayNames.setItems(otherUsers);
@@ -314,7 +333,8 @@ public class FXMLController extends AbstractFXMLController {
             });
 
             newChatWindow.initModality(Modality.APPLICATION_MODAL);
-            newChatWindow.setScene(new Scene(layout));
+            scene = new Scene(layout);
+            newChatWindow.setScene(scene);
             newChatWindow.setTitle("Start a new chat");
             newChatWindow.setResizable(false);
             newChatWindow.sizeToScene();
@@ -333,10 +353,15 @@ public class FXMLController extends AbstractFXMLController {
             }
             newChatWindow.showAndWait();
         }
+
+        private Scene getScene() {
+            return scene;
+        }
     }
 
     private class SettingsPanel {
         private Stage settingsWindow;
+        private Scene scene;
 
         private SettingsPanel() {
             settingsWindow = new Stage();
@@ -355,7 +380,8 @@ public class FXMLController extends AbstractFXMLController {
             layout.getChildren().addAll(mute, new Separator(), darkMode);
 
             settingsWindow.initModality(Modality.APPLICATION_MODAL);
-            settingsWindow.setScene(new Scene(layout));
+            scene = new Scene(layout);
+            settingsWindow.setScene(scene);
             settingsWindow.setTitle("Settings");
             settingsWindow.setResizable(false);
             settingsWindow.sizeToScene();
@@ -366,6 +392,10 @@ public class FXMLController extends AbstractFXMLController {
         }
         private void display() {
             settingsWindow.showAndWait();
+        }
+
+        private Scene getScene() {
+            return scene;
         }
     }
 

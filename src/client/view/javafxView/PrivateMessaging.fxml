@@ -30,10 +30,7 @@
                         </padding>
                     </VBox>
                 </ScrollPane>
-                <VBox fx:id = "fileButtons"  translateY = "450">
-                    <style>
-                        -fx-background-color: rgba(255, 255, 255, 0.5);
-                    </style>
+                <VBox fx:id = "fileButtons"  translateY = "450"  styleClass="file-buttons-panel">
                     <HBox spacing = "10" prefHeight = "50">
                         <padding>
                             <Insets top="10" right="10" bottom="10" left="10"/>
@@ -51,28 +48,28 @@
                                 <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
                             </padding>
                             <style>
-                                -fx-border-color: blue;
+                                -fx-border-color: rgb(0,162,232);
                                 -fx-border-width: 1;
                                 -fx-border-insets: 3;
                             </style>
-                            <Text>
+                            <Label>
                                 <style>
                                     -fx-font: 15px Verdana;
                                 </style>
                                 Standard
-                            </Text>
+                            </Label>
                             <GridPane fx:id = "standardEmotePanel" vgap = "5" hgap = "5">
                                 <padding>
                                     <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
                                 </padding>
                             </GridPane>
                             <Separator></Separator>
-                            <Text>
+                            <Label>
                                 <style>
                                     -fx-font: 15px Verdana;
                                 </style>
                                 Twitch
-                            </Text>
+                            </Label>
                             <GridPane fx:id = "twitchEmotePanel" vgap = "5" hgap = "5">
                                 <padding>
                                     <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
@@ -84,13 +81,10 @@
                 </VBox>
             </StackPane>
         </VBox>
-        <HBox spacing="10" alignment="CENTER">
+        <HBox spacing="10" alignment="CENTER" styleClass = "chat-field-container">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-            <style>
-                -fx-background-color: rgba(0, 162, 232, 1)
-            </style>
             <Button text = "+" onAction="#showButtonPanel">
                 <style>
                     -fx-background-radius: 1em;
@@ -102,7 +96,6 @@
                       onKeyPressed="#onEnter" prefWidth="500">
                 <style>
                     -fx-focus-color: transparent;
-                    -fx-background-color: rgba(255, 255, 255, 1);
                     -fx-padding: 0.333333em 1em 0.333333em 1em;
                     -fx-border-radius: 20;
                     -fx-background-radius: 20;

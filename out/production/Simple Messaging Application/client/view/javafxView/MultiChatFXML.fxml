@@ -95,28 +95,28 @@
                                     <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
                                 </padding>
                                 <style>
-                                    -fx-border-color: blue;
+                                    -fx-border-color: rgb(0,162,232);
                                     -fx-border-width: 1;
                                     -fx-border-insets: 3;
                                 </style>
-                                <Text>
+                                <Label>
                                     <style>
                                         -fx-font: 15px Verdana;
                                     </style>
                                     Standard
-                                </Text>
+                                </Label>
                                 <GridPane fx:id = "standardEmotePanel" vgap = "5" hgap = "5">
                                     <padding>
                                         <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
                                     </padding>
                                 </GridPane>
                                 <Separator></Separator>
-                                <Text>
+                                <Label>
                                     <style>
                                         -fx-font: 15px Verdana;
                                     </style>
                                     Twitch
-                                </Text>
+                                </Label>
                                 <GridPane fx:id = "twitchEmotePanel" vgap = "5" hgap = "5">
                                     <padding>
                                         <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
