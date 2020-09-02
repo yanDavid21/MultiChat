@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.effect.BoxBlur?>
 <?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -28,10 +23,8 @@
                 <Group>
                     <HBox spacing = "10">
                         <padding><Insets top = "10" right = "10" bottom = "10" left = "10"></Insets></padding>
-                        <Button focusTraversable="false" onAction = "#openNewChatWindow">
-                            <padding>
-                                <Insets top = "-1" right = "-1" bottom = "-1" left = "-1" ></Insets>
-                            </padding>
+                        <Button focusTraversable="false" onAction = "#openNewChatWindow"
+                                styleClass = "chat-and-settings-button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -39,16 +32,9 @@
                                     </image>
                                 </ImageView>
                             </graphic>
-                            <style>
-                                -fx-background-radius: 10em;
-                                -fx-focus-color: transparent;
-                                -fx-min-width: 30px;
-                                -fx-min-height: 30px;
-                                -fx-max-width: 30px;
-                                -fx-max-height: 30px;
-                            </style>
                         </Button>
-                        <Button focusTraversable="false" onAction = "#openSettingsPanel">
+                        <Button focusTraversable="false" onAction = "#openSettingsPanel"
+                                styleClass = "chat-and-settings-button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -56,15 +42,6 @@
                                     </image>
                                 </ImageView>
                             </graphic>
-                            <style>
-                                -fx-background-radius: 10em;
-                                -fx-focus-color: transparent;
-                                -fx-min-width: 30px;
-                                -fx-min-height: 30px;
-                                -fx-max-width: 30px;
-                                -fx-max-height: 30px;
-
-                            </style>
                         </Button>
                     </HBox>
                 </Group>
@@ -154,13 +131,10 @@
                     </VBox>
                 </StackPane>
             </VBox>
-            <HBox spacing="10" alignment="CENTER">
+            <HBox spacing="10" alignment="CENTER" styleClass = "chat-field-container">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
-                <style>
-                    -fx-background-color: rgba(0, 162, 232, 1)
-                </style>
                 <Button text = "+" onAction="#showButtonPanel">
                     <style>
                         -fx-background-radius: 1em;
@@ -169,14 +143,7 @@
                 </Button>
                 <Separator orientation="VERTICAL"></Separator>
                 <TextArea promptText="Type here..." fx:id="chatField" maxHeight="10" wrapText="true"
-                          onKeyPressed="#onEnter" prefWidth="500">
-                    <style>
-                        -fx-focus-color: transparent;
-                        -fx-background-color: rgba(255, 255, 255, 1);
-                        -fx-padding: 0.333333em 1em 0.333333em 1em;
-                        -fx-border-radius: 20;
-                        -fx-background-radius: 20;
-                    </style>
+                          onKeyPressed="#onEnter" prefWidth="500" styleClass = "chat-field">
                 </TextArea>
             </HBox>
         </VBox>

@@ -467,7 +467,7 @@ public class MultiChatServer {
                 //read file
                 while(fileSize > 0 && clientSocket.getInputStream().read(
                         buf, 0, Math.min(buf.length, fileSize)) > -1){
-                    fos.write(buf,0, buf.length);
+                    fos.write(buf,0, Math.min(buf.length, fileSize));
                     fos.flush();
                     fileSize -= buf.length;
                 }
