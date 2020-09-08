@@ -34,11 +34,11 @@ import java.util.Map;
 
 public class FXMLController extends AbstractFXMLController {
     private Scene scene;
-    private Set<PrivateMessagingController> privateMessagingWindows = new HashSet<>();
+    private final Set<PrivateMessagingController> privateMessagingWindows = new HashSet<>();
 
-    private ObservableList<String> userList = FXCollections.observableArrayList();
-    private ObservableList<String> serverList = FXCollections.observableArrayList();
-    private Map<String, Color> nameColors = new HashMap<>();
+    private final ObservableList<String> userList = FXCollections.observableArrayList();
+    private final ObservableList<String> serverList = FXCollections.observableArrayList();
+    private final Map<String, Color> nameColors = new HashMap<>();
 
     private File chosenFile;
 
@@ -80,50 +80,12 @@ public class FXMLController extends AbstractFXMLController {
 
     @FXML
     private void openFileExplorer() {
-        Platform.runLater(() -> {
-            FileChooser dialog = new FileChooser();
-            dialog.setTitle("Select a file to upload.");
-            File selected = dialog.showOpenDialog(scene.getWindow());
-            if (!(selected == null)) {
-                if (selected.length() < 25000000) {
-                    try {
-                        features.sendFile(selected.getName(), selected.length(), selected);
-                    } catch (IOException ioe) {
-                        displayError(true, "Something went wrong with sending the file!");
-                    }
-
-                } else {
-                    appendChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
-                }
-            }
-        });
+        getFile(false, scene.getWindow(), null, null);
     }
 
     @FXML
     private void openImageExplorer() {
-        Platform.runLater(() -> {
-            FileChooser dialog = new FileChooser();
-            dialog.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("All Images", "*.jpg", "*.png", "*.gif"),
-                    new FileChooser.ExtensionFilter("PNG", "*.png"),
-                    new FileChooser.ExtensionFilter("JPG", "*.jpg"),
-                    new FileChooser.ExtensionFilter("GIF", "*.gif")
-            );
-            dialog.setTitle("Select an image to upload.");
-            File selected = dialog.showOpenDialog(scene.getWindow());
-            if (!(selected == null)) {
-                if (selected.length() < 25000000) {
-                    try {
-                        features.sendFile(selected.getName(), selected.length(), selected);
-                    } catch (IOException ioe) {
-                        displayError(true, "Something went wrong with sending the file!");
-                    }
-
-                } else {
-                    appendChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
-                }
-            }
-        });
+        getImage(false, scene.getWindow(), null, null);
     }
 
     public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
@@ -131,7 +93,7 @@ public class FXMLController extends AbstractFXMLController {
         if (features.getClientUsername().equals(extractName(s))) {
             color = "white";
         }
-        if (protocol.equals("PRIVATEMESSAGE")) {
+        if (protocol.equals("PRIVATEMESSAGE") || protocol.equals("PRIVATEFILE")) {
             appendPrivateChatLog(s, color, hasDate, protocol);
         } else {
             super.appendChatLog(s, color, hasDate, protocol);
@@ -151,14 +113,7 @@ public class FXMLController extends AbstractFXMLController {
         setActiveList(activeServers, this.serverList, this.serverListView, false);
     }
 
-    public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, errorMessage);
-            if (!remainRunningWhenClosed) {
-                alert.setOnCloseRequest(e -> System.exit(1));
-            }
-        });
-    }
+
 
     public File showSaveDialog(String fileName) {
         Platform.runLater(() -> {
@@ -298,8 +253,8 @@ public class FXMLController extends AbstractFXMLController {
 
 
     private class NewChatPanel {
-        private Stage newChatWindow;
-        private Scene scene;
+        private final Stage newChatWindow;
+        private final Scene scene;
         ObservableList<String> otherUsers = FXCollections.observableArrayList();
 
         private NewChatPanel() {
@@ -360,8 +315,8 @@ public class FXMLController extends AbstractFXMLController {
     }
 
     private class SettingsPanel {
-        private Stage settingsWindow;
-        private Scene scene;
+        private final Stage settingsWindow;
+        private final Scene scene;
 
         private SettingsPanel() {
             settingsWindow = new Stage();
@@ -401,7 +356,7 @@ public class FXMLController extends AbstractFXMLController {
 
 
     private class Cell extends ListCell<String> {
-        private boolean isUserList;
+        private final boolean isUserList;
 
         private Cell(boolean isUserList) {
             this.isUserList = isUserList;

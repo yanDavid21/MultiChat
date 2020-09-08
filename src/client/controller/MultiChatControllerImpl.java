@@ -85,6 +85,8 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         File file = view.showSaveDialog(line.substring(line.indexOf(":") + 1));
         long fileSize = Long.parseLong(line.substring(9, line.indexOf(":")));
         model.saveFile(file, fileSize);
+      } else if(line.startsWith("PRIVATEFILE ")) {
+        view.appendChatLog(line.substring(12), "black", true, "PRIVATEFILE");
       } else if (line.startsWith("REQUESTEDNEWROOM ")) {
         try {
           MultiChatModel newModel = model.switchPorts(line.substring(17));
@@ -112,7 +114,12 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
   }
 
   @Override
-  public void sendFile(String fileName, long fileSize, File file) throws IOException{
-    model.sendFile(fileName, fileSize, file);
+  public void sendFile(String fileName, long fileSize, File file, boolean isPrivate, String receiver, String sender)
+          throws IOException{
+    if (isPrivate) {
+      model.sendPrivateFile(fileName, fileSize, file, receiver, sender);
+    } else {
+      model.sendFile(fileName, fileSize, file);
+    }
   }
 }

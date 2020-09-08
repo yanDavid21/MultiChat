@@ -33,20 +33,13 @@ public class PrivateMessagingController extends AbstractFXMLController {
 
     @FXML
     private void openFileExplorer() {
-        Platform.runLater(() -> {
-            FileChooser dialog = new FileChooser();
-            dialog.setTitle("Select a file to upload.");
-            File selected = dialog.showOpenDialog(window);
-            if (!(selected == null)) {
-                if (selected.length() > 25000000) {
-
-                } else {
-                    //appendChatLog("The file size cannot exceed 25mb.", "orange", false, "MESSAGEHELP");
-                }
-            }
-        });
+       getFile(true, window, receiver, sender);
     }
 
+    @FXML
+    private void openImageExplorer() {
+        getImage(true, window, receiver, sender);
+    }
 
     public String getReceiver() {
         return receiver;

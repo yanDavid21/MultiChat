@@ -17,5 +17,6 @@ public interface Features {
 
   String getClientUsername();
 
-  void sendFile(String fileName, long filesize, File file) throws IOException;
+  void sendFile(String fileName, long filesize, File file, boolean isPrivate, String receiver, String sender)
+          throws IOException;
 }

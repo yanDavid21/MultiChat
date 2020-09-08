@@ -8,10 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -24,8 +21,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
@@ -97,7 +99,6 @@ public abstract class AbstractFXMLController {
     }
 
     protected void appendChatLog(String s, String color, boolean hasDate, String protocol) {
-
         if (hasDate) {
             appendMessage(formatDate(s), getColor(color), hasDate, protocol);
         } else {
@@ -105,9 +106,63 @@ public abstract class AbstractFXMLController {
         }
     }
 
+    protected void displayError(boolean remainRunningWhenClosed, String errorMessage) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR, errorMessage);
+            if (!remainRunningWhenClosed) {
+                alert.setOnCloseRequest(e -> System.exit(1));
+            }
+        });
+    }
+
     //extracts the username of the message
     protected String extractName(String msg) {
         return msg.substring(msg.indexOf("]") + 2).split(": ")[0];
+    }
+
+    protected void getFile(boolean isPrivate, Window window, String receiver, String sender) {
+        Platform.runLater(() -> {
+            FileChooser dialog = new FileChooser();
+            dialog.setTitle("Select a file to upload.");
+            File selected = dialog.showOpenDialog(window);
+            if (!(selected == null)) {
+                if (selected.length() < 25000000) {
+                    try {
+                        features.sendFile(selected.getName(), selected.length(), selected, isPrivate, receiver, sender);
+                    } catch (IOException ioe) {
+                        displayError(true, "Something went wrong with sending the file!");
+                    }
+                } else {
+                    appendChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
+                }
+            }
+        });
+    }
+
+    protected void getImage(boolean isPrivate, Window window, String receiver, String sender) {
+        Platform.runLater(() -> {
+            FileChooser dialog = new FileChooser();
+            dialog.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("All Images", "*.jpg", "*.png", "*.gif"),
+                    new FileChooser.ExtensionFilter("PNG", "*.png"),
+                    new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                    new FileChooser.ExtensionFilter("GIF", "*.gif")
+            );
+            dialog.setTitle("Select an image to upload.");
+            File selected = dialog.showOpenDialog(window);
+            if (!(selected == null)) {
+                if (selected.length() < 25000000) {
+                    try {
+                        features.sendFile(selected.getName(), selected.length(), selected, isPrivate, receiver, sender);
+                    } catch (IOException ioe) {
+                        displayError(true, "Something went wrong with sending the file!");
+                    }
+
+                } else {
+                    appendChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
+                }
+            }
+        });
     }
 
     private void appendMessage(String msg, Color c, boolean hasDate, String protocol) {
@@ -131,7 +186,7 @@ public abstract class AbstractFXMLController {
             bubbleWithMsg.setMaxWidth(Double.MAX_VALUE);
 
             if (!protocol.equals("MESSAGE") && !protocol.equals("WHISPER") && !protocol.equals("FILE") &&
-                    !protocol.equals("PRIVATEMESSAGE")) {
+                    !protocol.equals("PRIVATEMESSAGE") && !protocol.equals("PRIVATEFILE")) {
                 messageContainer.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
                 bubbleWithMsg.setAlignment(Pos.CENTER); //if it is not user text, center it (ie. black text messages)
             } else if (extractName(msg).equals(features.getClientUsername())) {
@@ -145,7 +200,7 @@ public abstract class AbstractFXMLController {
             }
 
             HBox surface;
-            if (protocol.equals("FILE")) {
+            if (protocol.equals("FILE") || protocol.equals("PRIVATEFILE")) {
                 surface = createHyperLink(msg);
             } else {
                 surface = textMessageWithImages(words, c); //contains the texts and images sent
@@ -208,7 +263,8 @@ public abstract class AbstractFXMLController {
 
         rect.setArcWidth(20);
         rect.setArcHeight(20);
-        if (protocol.equals("MESSAGE") || protocol.equals("FILE") || protocol.equals("PRIVATEMESSAGE")) {
+        if (protocol.equals("MESSAGE") || protocol.equals("FILE") || protocol.equals("PRIVATEMESSAGE") ||
+                protocol.equals("PRIVATEFILE")) {
             if (extractName(msg).equals(features.getClientUsername())) {
                 rect.setFill(Color.CORNFLOWERBLUE);
             } else {
