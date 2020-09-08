@@ -87,6 +87,8 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         model.saveFile(file, fileSize);
       } else if(line.startsWith("PRIVATEFILE ")) {
         view.appendChatLog(line.substring(12), "black", true, "PRIVATEFILE");
+      } else if(line.startsWith("SERVERCLOSE")) {
+        view.displayError(false, "Server has closed.");
       } else if (line.startsWith("REQUESTEDNEWROOM ")) {
         try {
           MultiChatModel newModel = model.switchPorts(line.substring(17));
@@ -100,7 +102,8 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         }
       }
     }
-    view.dispose(); //once connection is closed, end the GUI
+    //once connection is closed, end the GUI and all processes (including PM's)
+    System.exit(1);
   }
 
   @Override

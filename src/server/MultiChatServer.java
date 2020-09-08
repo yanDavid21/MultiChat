@@ -65,9 +65,10 @@ public class MultiChatServer {
                 String command = input.nextLine();
                 switch (command) {
                     case "exit":
-                        System.out.println("good");
-                        //send to all users its closing
-                        //maybe a timer?
+                        //send to all users its closing (protocol: SERVERCLOSE)
+                        for (PrintWriter writer : outputWriters) {
+                            writer.println("SERVERCLOSE");
+                        }
                         break;
                     case "users":
                         //get list of all users
@@ -316,7 +317,6 @@ public class MultiChatServer {
                         out.println("FAILEDFILETRANSFER Error fetching file.");
                         ioe.printStackTrace();
                     }
-
                 } else {
                     for (PrintWriter writer : outputWriters) {
                         writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);
@@ -492,7 +492,7 @@ public class MultiChatServer {
                 byte[]buf = new byte[4096];
                 File file = new File("resources/tempFiles/" + name + "/" + fileName);
                 file.createNewFile();
-                FileOutputStream fos = new FileOutputStream(file);
+                FileOutputStream fos = new FileOutputStream(file, false);
                 //read file
                 while(fileSize > 0 && clientSocket.getInputStream().read(
                         buf, 0, Math.min(buf.length, fileSize)) > -1){
@@ -518,7 +518,7 @@ public class MultiChatServer {
                 byte[]buf = new byte[4096];
                 File file = new File("resources/tempFiles/" + name + "/" + fileName);
                 file.createNewFile();
-                FileOutputStream fos = new FileOutputStream(file);
+                FileOutputStream fos = new FileOutputStream(file, false);
                 //read file
                 while(fileSize > 0 && clientSocket.getInputStream().read(
                         buf, 0, Math.min(buf.length, fileSize)) > -1){
