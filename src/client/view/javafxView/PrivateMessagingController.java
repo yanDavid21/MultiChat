@@ -27,7 +27,6 @@ public class PrivateMessagingController extends AbstractFXMLController {
         this.features = features;
         this.window = window;
         this.scene = scene;
-        this.preface = "/privatemsg " + sender + ": " + receiver + ": ";
     }
 
 
@@ -50,4 +49,9 @@ public class PrivateMessagingController extends AbstractFXMLController {
     }
 
     public Scene getScene() {return scene;}
+
+    @Override
+    protected String getPreface() {
+        return "/privatemsg " + sender + ": " + receiver + ": ";
+    }
 }

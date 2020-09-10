@@ -1,39 +1,54 @@
 package client.model;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Date;
 import java.util.Scanner;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.TrustManagerFactory;
 
+/**
+ * Represents a standard model implementation of the MultiChatClient, handling the internal processes of the client.
+ * Stores the IP address to the desired server, the SSLSocket to the server, a Scanner and PrintWriter object wrapped
+ * around the SSL (Secure Socket Layer) Socket, and the username of the client.
+ */
 public class MultiChatClientModelImpl implements MultiChatModel {
 
     private final String ipAddress;
     private Scanner in;
     private PrintWriter out;
-    private SSLSocket socket;
+    private final SSLSocket socket;
     private String name;
 
+    /**
+     * Creates a instance of this model and creates a SSLSocket to the given IP address and port number.
+     *
+     * @param ipAddress  the IP address of the server
+     * @param portNumber the port number of the server
+     * @throws IOException when the server cannot be reached or successfully connected to
+     */
     public MultiChatClientModelImpl(String ipAddress, int portNumber) throws IOException {
         this.ipAddress = ipAddress;
-
         try {
             socket = initSSLDetailsAndGetClientSocket(ipAddress, portNumber);
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
 
-        handleHandshake();
+        socket.startHandshake();
         wrapClientIO();
         checkSocketError();
     }
@@ -75,18 +90,6 @@ public class MultiChatClientModelImpl implements MultiChatModel {
         //return a SSL socket with all the specific SSL context
         factory = ctx.getSocketFactory();
         return (SSLSocket) factory.createSocket(ipAddress, portNumber);
-    }
-
-    //starts the handshake process with the connected server socket and adds a listener for a
-    //successful connection
-    private void handleHandshake() throws IOException {
-        socket.addHandshakeCompletedListener(e -> printSuccessfulHandshake(e));
-        socket.startHandshake();
-    }
-
-    //prints to the console if the handshake was successful, along with session information
-    private void printSuccessfulHandshake(HandshakeCompletedEvent e) {
-        System.out.println("Handshake successful: " + e.getSession());
     }
 
     //wraps the input and output streams in a Scanner and PrintWriter respectively
@@ -136,22 +139,18 @@ public class MultiChatClientModelImpl implements MultiChatModel {
     @Override
     public void sendFile(String fileName, long filesize, File file) throws IOException {
         out.println("/file " + fileName + ":" + filesize);
-        FileInputStream fis = new FileInputStream(file);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        byte[] buffer = new byte[4096];
-        int amountRead;
-        while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
-            socket.getOutputStream().write(buffer, 0, amountRead);
-        }
-        socket.getOutputStream().flush();
-        fis.close();
-        bis.close();
+        sendFileDownStream(file);
     }
 
     @Override
     public void sendPrivateFile(String fileName, long fileSize, File file, String receiver, String sender)
             throws IOException {
         out.println("/privatefile " + receiver + ":" + fileName + ":" + fileSize);
+        sendFileDownStream(file);
+    }
+
+    //reads a file and sends it down the socket's output stream
+    private void sendFileDownStream(File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
         byte[] buffer = new byte[4096];
@@ -165,24 +164,20 @@ public class MultiChatClientModelImpl implements MultiChatModel {
     }
 
     @Override
-    public void saveFile(File file, long fileSize) {
-        try {
-            if (file != null) {
-                byte[] buf = new byte[4096];
-                FileOutputStream fos = new FileOutputStream(file);
-                //read file
-                while (fileSize > 0 && socket.getInputStream().read(
-                        buf, 0, (int) Math.min(buf.length, fileSize)) > -1) {
-                    fos.write(buf, 0, buf.length);
-                    fos.flush();
-                    fileSize -= buf.length;
-                }
-                fos.close();
-            } else {
-                socket.getInputStream().skip(fileSize);
+    public void saveFile(File file, long fileSize) throws IOException {
+        if (file != null) {
+            byte[] buf = new byte[4096];
+            FileOutputStream fos = new FileOutputStream(file);
+            //read file
+            while (fileSize > 0 && socket.getInputStream().read(
+                    buf, 0, (int) Math.min(buf.length, fileSize)) > -1) {
+                fos.write(buf, 0, buf.length);
+                fos.flush();
+                fileSize -= buf.length;
             }
-        } catch (IOException ioe) {
-            //TODO: handle
+            fos.close();
+        } else {
+            socket.getInputStream().skip(fileSize);
         }
     }
 

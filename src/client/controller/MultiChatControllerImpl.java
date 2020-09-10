@@ -2,10 +2,8 @@ package client.controller;
 
 import client.model.MultiChatModel;
 import client.view.MultiChatView;
-
 import java.io.*;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +12,7 @@ import java.util.List;
  */
 public class MultiChatControllerImpl implements MultiChatController, Features {
   private MultiChatModel model;
-  private MultiChatView view;
+  private final MultiChatView view;
 
   /**
    * Constructs an instance of a MultiChatControllerImpl, providing this object with instances of a MultiChatView and
@@ -84,7 +82,12 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
       } else if(line.startsWith("FILEDATA ")) {
         File file = view.showSaveDialog(line.substring(line.indexOf(":") + 1));
         long fileSize = Long.parseLong(line.substring(9, line.indexOf(":")));
-        model.saveFile(file, fileSize);
+        System.out.println("filesize" + fileSize);
+        try {
+          model.saveFile(file, fileSize);
+        } catch (IOException ioe) {
+          view.displayError(true, "Error saving file.");
+        }
       } else if(line.startsWith("PRIVATEFILE ")) {
         view.appendChatLog(line.substring(12), "black", true, "PRIVATEFILE");
       } else if(line.startsWith("SERVERCLOSE")) {
@@ -102,8 +105,7 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         }
       }
     }
-    //once connection is closed, end the GUI and all processes (including PM's)
-    System.exit(1);
+    view.displayError(false, "Connection to server unexpectedly failed.");
   }
 
   @Override

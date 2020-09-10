@@ -23,7 +23,6 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -63,7 +62,6 @@ public class FXMLController extends AbstractFXMLController {
         this.scene = scene;
         this.serverListView.setItems(serverList);
         this.userListView.setItems(userList);
-        this.preface = "";
         this.scene.getStylesheets().add(getClass().getResource("Lightmode.css").toExternalForm());
     }
 
@@ -86,6 +84,11 @@ public class FXMLController extends AbstractFXMLController {
     @FXML
     private void openImageExplorer() {
         getImage(false, scene.getWindow(), null, null);
+    }
+
+    @Override
+    protected String getPreface() {
+        return "";
     }
 
     public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
@@ -112,7 +115,6 @@ public class FXMLController extends AbstractFXMLController {
     public void setActiveServers(List<String> activeServers) {
         setActiveList(activeServers, this.serverList, this.serverListView, false);
     }
-
 
 
     public File showSaveDialog(String fileName) {

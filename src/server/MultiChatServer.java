@@ -37,13 +37,13 @@ public class MultiChatServer {
     private static final Set<String> alreadyVoted = new HashSet<>();
 
     /**
-     * Main method to start the MultiChat server and listens for 1<=x<=args connections on local port
-     * 59090 where args is the desired number of possible clients (default 30). Creating a thread for
+     * Main method to start the MultiChat server and listens for 1<=x<=args connections on a specified local port
+     * and the desired number of possible clients (default 30). Creates a thread for
      * each connection and creating and running a Task for each connection.
      *
-     * @param args command line arguments describing the desired number of clients
-     * @throws IllegalArgumentException when supplied more than one argument
-     * @throws NumberFormatException    when given a non-integer argument.
+     * @param args command line arguments describing the port number[0] and desired number of clients[1]
+     * @throws IllegalArgumentException when supplied 0 or >2 arguments
+     * @throws NumberFormatException    when given a non-integer arguments
      */
     public static void main(String[] args) throws IllegalArgumentException,
             NumberFormatException {
@@ -55,26 +55,31 @@ public class MultiChatServer {
         } else if (args.length == 1) {
             possibleAmountOfClients = 30;
         } else {
-            throw new IllegalArgumentException("Supplied more than 2 argument. Please enter zero or one "
+            throw new IllegalArgumentException("Supplied incorrect number of arguments. Please enter zero or one "
                     + "integer only for number of desired clients.");
         }
 
         new Thread(() -> {
+            System.out.println("MultiChat Server " + args[0] + " is running...");
+            System.out.println("Commands: \"exit\", \"users\", \"servers\"");
             Scanner input = new Scanner(System.in);
-            while(input.hasNextLine()) {
+            while (input.hasNextLine()) {
                 String command = input.nextLine();
                 switch (command) {
                     case "exit":
-                        //send to all users its closing (protocol: SERVERCLOSE)
+                        //send to all users the server is closing (protocol: SERVERCLOSE)
                         for (PrintWriter writer : outputWriters) {
                             writer.println("SERVERCLOSE");
                         }
+                        System.exit(1);
                         break;
                     case "users":
-                        //get list of all users
+                        //gets list of all users
+                        System.out.println(users.keySet());
                         break;
                     case "servers":
                         //get list of all servers
+                        System.out.println(serverNames);
                         break;
                     default:
                         System.out.println("Invalid command.");
@@ -87,7 +92,6 @@ public class MultiChatServer {
         //servers and updates the active servers on the existence of other servers
         Thread masterServerCommunication = new Thread(new RunServerCommunication(args[0]));
         masterServerCommunication.start();
-        System.out.println("MultiChat Server is running...");
 
         //creates a thread to handle each socket connection to this server,
         ExecutorService pool = Executors.newFixedThreadPool(possibleAmountOfClients);
@@ -157,16 +161,14 @@ public class MultiChatServer {
                     serverList = serverList.substring(17);
                     String[] activeServers = serverList.split(", ");
                     serverNames.clear();
-                    for (String server : activeServers) {
-                        serverNames.add(server);
-                    }
-                    System.out.println(serverList);
+                    serverNames.addAll(Arrays.asList(activeServers));
                     updateServerList();
                 }
                 socketToMasterServer.close();
                 System.exit(2);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.exit(-1);
             }
         }
     }
@@ -182,7 +184,7 @@ public class MultiChatServer {
         private final SSLSocket clientSocket; //the socket of the client connection
         private Scanner in; //the input of the client
         private PrintWriter out; //the output to the client
-        private String portNumber;
+        private final String portNumber;
 
         //Captures the client's socket as a field.
         private Task(SSLSocket clientSocket, String portNumber) {
@@ -225,7 +227,7 @@ public class MultiChatServer {
                     throw new IllegalArgumentException("Supplied a null name.");
                 }
                 synchronized (users) {
-                    if (!name.isBlank() && !users.keySet().contains(name) && !name.contains(",") &&
+                    if (!name.isBlank() && !users.containsKey(name) && !name.contains(",") &&
                             !name.contains(":")) {
                         users.put(name, this);
                         break;
@@ -257,70 +259,77 @@ public class MultiChatServer {
         //transmits user messages to other clients, handles user command requests as a well
         private void handleUserInput() {
             while (in.hasNextLine()) {
-                String input = in.nextLine();
-                if (input.toLowerCase().startsWith("/quit")) {
-                    userLeave();
-                    return;
-                } else if (input.toLowerCase().startsWith("/help")) {
-                    printHelpMessage();
-                } else if (input.toLowerCase().startsWith("/emotes")) {
-                    printEmoteHelpMessage();
-                } else if (input.toLowerCase().startsWith("/join ")) {
-                    out.println("REQUESTEDNEWROOM " + input.substring(6));
-                } else if (input.startsWith("UNSUCCESSFULROOMCHANGE ")) {
-                    out.println("MESSAGEHELP " + input.substring(23));
-                } else if (input.startsWith("/votekick ")) {
-                    printVoteKickMessage(input.substring(10));
-                } else if(input.toLowerCase().startsWith("/whisper ")) {
-                    String receiver = input.substring(9, input.indexOf(":"));
-                    String msg = input.substring(input.indexOf(": ") + 1);
-                    printWhisper(receiver, msg);
-                } else if(input.toLowerCase().startsWith("/privatemsg ")) {
-                    String[] components = input.split(": ");
-                    String sender = components[0].substring(12);
-                    String receiver = components[1];
-                    String inputWithoutDate = input.substring(12);
-                    String messageAndReceiver = inputWithoutDate.substring(inputWithoutDate.indexOf(": ") + 2);
-                    String message = messageAndReceiver.substring(messageAndReceiver.indexOf(": ") + 2);
-                    printPrivMsg(sender, receiver, message);
-                } else if (input.toLowerCase().startsWith("/file ")) {
-                    String fileName = input.substring(6, input.lastIndexOf(":"));
-                    int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
-                    System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
-                    readFileThenOutput(fileName, fileSize);
-                } else if (input.toLowerCase().startsWith("/privatefile ")) {
-                    // /privatefile [receiver]:[filename]:[filesize]
-                    String fileReceiver = input.substring(13, input.indexOf(":"));
-                    String fileName = input.substring(input.indexOf(":") + 1, input.lastIndexOf(":"));
-                    int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
-                    System.out.println("Receiving private file from: " + name + " " + fileName + " size: " + fileSize);
-                    readFileThenOutputPrivately(fileName, fileSize, fileReceiver);
-                } else if (input.toLowerCase().startsWith("/requestfile ")) {
-                    try {
-                        String fileOwner = input.substring(13, input.indexOf(":"));
-                        String fileName = input.substring(input.indexOf(":") + 1);
-                        File requested = new File("resources/tempFiles/"+fileOwner+"/"+fileName);
-                        long fileSize = requested.length();
-                        byte[] buffer = new byte[4096];
-                        FileInputStream fis = new FileInputStream(requested);
-                        BufferedInputStream bis = new BufferedInputStream(fis);
-                        System.out.println("requested = " + requested);
-                        int amountRead;
-                        out.println("FILEDATA " + fileSize + ":" + fileName);
-                        while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
-                            clientSocket.getOutputStream().write(buffer, 0,  amountRead);
+                try {
+                    String input = in.nextLine();
+                    if (input.toLowerCase().startsWith("/quit")) {
+                        userLeave();
+                        return;
+                    } else if (input.toLowerCase().startsWith("/help")) {
+                        printHelpMessage();
+                    } else if (input.toLowerCase().startsWith("/emotes")) {
+                        printEmoteHelpMessage();
+                    } else if (input.toLowerCase().startsWith("/join ")) {
+                        out.println("REQUESTEDNEWROOM " + input.substring(6));
+                    } else if (input.startsWith("UNSUCCESSFULROOMCHANGE ")) {
+                        out.println("MESSAGEHELP " + input.substring(23));
+                    } else if (input.startsWith("/votekick ")) {
+                        printVoteKickMessage(input.substring(10));
+                    } else if (input.toLowerCase().startsWith("/whisper ")) {
+                        String receiver = input.substring(9, input.indexOf(":"));
+                        String msg = input.substring(input.indexOf(": ") + 1);
+                        printWhisper(receiver, msg);
+                    } else if (input.toLowerCase().startsWith("/privatemsg ")) {
+                        String[] components = input.split(": ");
+                        String sender = components[0].substring(12);
+                        String receiver = components[1];
+                        String inputWithoutDate = input.substring(12);
+                        String messageAndReceiver = inputWithoutDate.substring(inputWithoutDate.indexOf(": ") + 2);
+                        String message = messageAndReceiver.substring(messageAndReceiver.indexOf(": ") + 2);
+                        printPrivMsg(sender, receiver, message);
+                    } else if (input.toLowerCase().startsWith("/file ")) {
+                        String fileName = input.substring(6, input.lastIndexOf(":"));
+                        int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
+                        System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
+                        readFileThenOutputToRoom(fileName, fileSize);
+                    } else if (input.toLowerCase().startsWith("/privatefile ")) {
+                        // /privatefile [receiver]:[filename]:[filesize]
+                        String fileReceiver = input.substring(13, input.indexOf(":"));
+                        String fileName = input.substring(input.indexOf(":") + 1, input.lastIndexOf(":"));
+                        int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
+                        System.out.println("Receiving private file from: " + name + " " + fileName + " size: "
+                                + fileSize);
+                        readFileThenOutputPrivately(fileName, fileSize, fileReceiver);
+                    } else if (input.toLowerCase().startsWith("/requestfile ")) {
+                        try {
+                            String fileOwner = input.substring(13, input.indexOf(":"));
+                            String fileName = input.substring(input.indexOf(":") + 1);
+                            File requested = new File("resources/tempFiles/" + fileOwner + "/" + fileName);
+                            long fileSize = requested.length();
+                            byte[] buffer = new byte[4096];
+                            FileInputStream fis = new FileInputStream(requested);
+                            BufferedInputStream bis = new BufferedInputStream(fis);
+                            int amountRead;
+                            out.println("FILEDATA " + fileSize + ":" + fileName);
+                            while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
+                                clientSocket.getOutputStream().write(buffer, 0, amountRead);
+                            }
+                            clientSocket.getOutputStream().flush();
+                            fis.close();
+                            bis.close();
+                        } catch (IOException | NullPointerException ioe) {
+                            out.println("FAILEDFILETRANSFER Error fetching file.");
+                            ioe.printStackTrace();
                         }
-                        clientSocket.getOutputStream().flush();
-                        fis.close();
-                        bis.close();
-                    } catch (IOException | NullPointerException ioe) {
-                        out.println("FAILEDFILETRANSFER Error fetching file.");
-                        ioe.printStackTrace();
+                    } else { //if there is no valid command specified, assume the input is a message
+                        for (PrintWriter writer : outputWriters) {
+                            writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);
+                        }
                     }
-                } else {
-                    for (PrintWriter writer : outputWriters) {
-                        writer.println("MESSAGE " + "[" + new Date().toString() + "] " + name + ": " + input);
-                    }
+                } catch (RuntimeException e) {
+                    //empty catch block
+                    //most exceptions are handled properly but this ensures that server never stops serving the
+                    //client the until connection is terminated, and prevents erroneous user commands such as
+                    //"/privatemessage [non-existing user]"
                 }
             }
         }
@@ -375,7 +384,7 @@ public class MultiChatServer {
                 return;
             }
 
-            if (!users.keySet().contains(victim)) {
+            if (!users.containsKey(victim)) {
                 out.println("FAILEDVOTEKICK There is no one here named " + victim);
                 return;
             }
@@ -467,7 +476,7 @@ public class MultiChatServer {
                 StringBuilder activeUserList = new StringBuilder();
                 activeUserList.append("ACTIVEUSERLIST ");
                 for (String name : users.keySet()) {
-                    activeUserList.append(name + ",");
+                    activeUserList.append(name).append(",");
                 }
                 writer.println(activeUserList.toString());
             }
@@ -485,52 +494,42 @@ public class MultiChatServer {
                     sender + ": " + receiver + ": " + message);
         }
 
-        private void readFileThenOutput(String fileName, int fileSize) {
-            System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
-            //create a new fileoutputstream for each new file
-            try{
-                byte[]buf = new byte[4096];
-                File file = new File("resources/tempFiles/" + name + "/" + fileName);
-                file.createNewFile();
-                FileOutputStream fos = new FileOutputStream(file, false);
-                //read file
-                while(fileSize > 0 && clientSocket.getInputStream().read(
-                        buf, 0, Math.min(buf.length, fileSize)) > -1){
-                    fos.write(buf,0, Math.min(buf.length, fileSize));
-                    fos.flush();
-                    fileSize -= buf.length;
-                }
-                fos.close();
-                for (PrintWriter writer : outputWriters) {
-                    writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
-                }
-            } catch (FileNotFoundException fnfe) {
-                out.println("FAILEDFILETRANSFER Improper file name.");
-            } catch (IOException ioe) {
-                out.println("FAILEDFILETRANSFER Error communicating to server.");
-            }
+        private void readFileThenOutputToRoom(String fileName, int fileSize) {
+            readFileThenOutput(fileName, fileSize, null, false);
         }
 
         private void readFileThenOutputPrivately(String fileName, int fileSize, String receiver) {
-            System.out.println("Receiving private file from: " + name + " " + fileName + " size: " + fileSize);
-            //create a new fileoutputstream for each new file
-            try{
-                byte[]buf = new byte[4096];
+            readFileThenOutput(fileName, fileSize, receiver, true);
+        }
+
+        private void readFileThenOutput(String fileName, int fileSize, String receiver, boolean isPrivate) {
+            //create a new fileoutputstream for the file
+            try {
+                byte[] buf = new byte[4096];
                 File file = new File("resources/tempFiles/" + name + "/" + fileName);
                 file.createNewFile();
                 FileOutputStream fos = new FileOutputStream(file, false);
                 //read file
-                while(fileSize > 0 && clientSocket.getInputStream().read(
-                        buf, 0, Math.min(buf.length, fileSize)) > -1){
-                    fos.write(buf,0, Math.min(buf.length, fileSize));
+                while (fileSize > 0 && clientSocket.getInputStream().read(
+                        buf, 0, Math.min(buf.length, fileSize)) > -1) {
+                    fos.write(buf, 0, Math.min(buf.length, fileSize));
                     fos.flush();
                     fileSize -= buf.length;
                 }
                 fos.close();
-               users.get(receiver).out.println("PRIVATEFILE " + "[" + new Date() + "] "
-                       + name + ": " + receiver + ": " + fileName);
-               users.get(name).out.println("PRIVATEFILE " + "[" + new Date() + "] "
-                        + name + ": " + receiver + ": " + fileName);
+                if (isPrivate) {
+                    System.out.println("Receiving private file from: " + name + " " + fileName + " size: " + fileSize);
+                    users.get(receiver).out.println("PRIVATEFILE " + "[" + new Date() + "] "
+                            + name + ": " + receiver + ": " + fileName);
+                    users.get(name).out.println("PRIVATEFILE " + "[" + new Date() + "] "
+                            + name + ": " + receiver + ": " + fileName);
+                } else {
+                    System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
+                    for (PrintWriter writer : outputWriters) {
+                        writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
+                    }
+                }
+
             } catch (FileNotFoundException fnfe) {
                 out.println("FAILEDFILETRANSFER Improper file name.");
             } catch (IOException ioe) {
@@ -546,10 +545,9 @@ public class MultiChatServer {
             StringBuilder serverList = new StringBuilder();
             serverList.append("ACTIVESERVERLIST ");
             for (String serverName : serverNames) {
-                serverList.append(serverName + ",");
+                serverList.append(serverName).append(",");
             }
             out.println(serverList.toString());
-            System.out.println(serverList.toString());
         }
     }
 }

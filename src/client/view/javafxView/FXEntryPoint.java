@@ -25,8 +25,8 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * A JavaFX Application class that provides an entry point in creating the MultiChat JavaFX view. Every instance stores
- * itself as a static variable so the controller can access this object when Application.launch has started. This class
- * also stores the controller of the GUI (FXMLController), the window, and the name of the user.
+ * itself as a static variable so the client controller can access this object when Application.launch has started.
+ * This class also stores the controller of the GUI (FXMLController), the window, and the name of the user.
  */
 public class FXEntryPoint extends Application implements MultiChatView {
 
@@ -39,7 +39,6 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     private static final CountDownLatch waitForInitLatch = new CountDownLatch(1);
     private static CountDownLatch waitForNameLatch;
-    private String prompt; //prompt for username request dialog windows
 
     private Features feature;
 
@@ -92,7 +91,6 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     @Override
     public String getName(String prompt) {
-        this.prompt = prompt;
         Platform.runLater(() -> this.displayNameDialog(prompt)); //creates a pop-up dialog that requests a username
 
         //blocks this method, until the pop-up dialog supplies a legitimate name
@@ -154,6 +152,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
         window.setResizable(false);
         window.setOnCloseRequest(e -> {
             this.feature.sendTextOut("/quit");
+            System.exit(1);
         });
 
         //allows this instance to be accessed by the latch once this method finishes
@@ -218,7 +217,5 @@ public class FXEntryPoint extends Application implements MultiChatView {
         banner.requestFocus();
         dialogWindow.showAndWait();
     }
-
-
 
 }
