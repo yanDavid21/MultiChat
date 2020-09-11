@@ -18,7 +18,8 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 /**
- * Represents a simple-text server handling the input and output to several clients (30).
+ * Represents a simple-text server handling the input and output to several clients (30). Every instance has a list of
+ * users, a list of servers, ........
  */
 public class MultiChatServer {
 
@@ -71,7 +72,8 @@ public class MultiChatServer {
                         for (PrintWriter writer : outputWriters) {
                             writer.println("SERVERCLOSE");
                         }
-                        System.exit(1);
+                        deleteDirContents(new File("resources/tempFiles"));
+                        System.exit(0);
                         break;
                     case "users":
                         //gets list of all users
@@ -289,15 +291,12 @@ public class MultiChatServer {
                     } else if (input.toLowerCase().startsWith("/file ")) {
                         String fileName = input.substring(6, input.lastIndexOf(":"));
                         int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
-                        System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
                         readFileThenOutputToRoom(fileName, fileSize);
                     } else if (input.toLowerCase().startsWith("/privatefile ")) {
                         // /privatefile [receiver]:[filename]:[filesize]
                         String fileReceiver = input.substring(13, input.indexOf(":"));
                         String fileName = input.substring(input.indexOf(":") + 1, input.lastIndexOf(":"));
                         int fileSize = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1));
-                        System.out.println("Receiving private file from: " + name + " " + fileName + " size: "
-                                + fileSize);
                         readFileThenOutputPrivately(fileName, fileSize, fileReceiver);
                     } else if (input.toLowerCase().startsWith("/requestfile ")) {
                         try {
@@ -352,7 +351,7 @@ public class MultiChatServer {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                System.out.print("Failure to close client socket: " + clientSocket.toString());
+                System.out.println("Failure to close client socket: " + clientSocket.toString());
             }
         }
 
@@ -414,7 +413,6 @@ public class MultiChatServer {
                 curVictim = victim;
 
                 // after ten seconds, the votekick ends
-                // ask david to clean this up lol, idk how lambdas work
                 kickTimer = new Timer();
                 kickTimer.schedule(
                         new java.util.TimerTask() {
@@ -549,6 +547,20 @@ public class MultiChatServer {
             }
             out.println(serverList.toString());
         }
+    }
+
+    //takes in a directory to be cleared of all content
+    private static void deleteDirContents(File directory) {
+        for (File child : directory.listFiles())
+            deleteRecursive(child);
+    }
+
+    //deletes empty directories and files, on non-empty folders, recursively calls this method on subfolders and files
+    private static void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+        fileOrDirectory.delete();
     }
 }
 
