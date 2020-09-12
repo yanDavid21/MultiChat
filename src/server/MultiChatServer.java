@@ -317,7 +317,6 @@ public class MultiChatServer {
                             bis.close();
                         } catch (IOException | NullPointerException ioe) {
                             out.println("FAILEDFILETRANSFER Error fetching file.");
-                            ioe.printStackTrace();
                         }
                     } else { //if there is no valid command specified, assume the input is a message
                         for (PrintWriter writer : outputWriters) {
@@ -335,6 +334,7 @@ public class MultiChatServer {
 
         //handles when a client leaves the chatroom
         private void userLeave() {
+            deleteRecursive(new File("resources/tempFiles/" + name));
             if (out != null) {
                 outputWriters.remove(out);
             }
@@ -377,6 +377,8 @@ public class MultiChatServer {
             out.println("MESSAGEHELP Pepehands( Pepehands ): \"Pepehands\"");
         }
 
+        //prints the proper vote kick message based on who initiated on whom, and if there is a current victim to be
+        //kicked
         private void printVoteKickMessage(String victim) {
             if (victim.equals(name)) {
                 out.println("FAILEDVOTEKICK  You cannot kick yourself!");
@@ -443,6 +445,7 @@ public class MultiChatServer {
 
         }
 
+        //kicks the user and reset
         private void kickUser() {
             for (PrintWriter writer : outputWriters) {
                 writer.println("SUCCESSFULVOTEKICK " + curVictim + " was kicked!");
@@ -480,11 +483,13 @@ public class MultiChatServer {
             }
         }
 
+        //prints the whispered message to the receiver and the sender
         private void printWhisper(String receiver, String msg) {
             users.get(receiver).out.println("WHISPER " + "[" + new Date().toString() + "] " + name + ": " + msg);
             out.println("WHISPER " + "[" + new Date().toString() + "] " + name + ": " + msg);
         }
 
+        //prints the private message to the sender and receiver
         private void printPrivMsg(String sender, String receiver, String message) {
             out.println("PRIVATEMESSAGE " + "[" + new Date().toString() + "] " +
                     sender + ": " + receiver + ": " + message);
@@ -492,6 +497,7 @@ public class MultiChatServer {
                     sender + ": " + receiver + ": " + message);
         }
 
+        //gets the requested file
         private void readFileThenOutputToRoom(String fileName, int fileSize) {
             readFileThenOutput(fileName, fileSize, null, false);
         }
@@ -502,32 +508,37 @@ public class MultiChatServer {
 
         private void readFileThenOutput(String fileName, int fileSize, String receiver, boolean isPrivate) {
             //create a new fileoutputstream for the file
+            int initFileSize = fileSize;
             try {
                 byte[] buf = new byte[4096];
                 File file = new File("resources/tempFiles/" + name + "/" + fileName);
-                file.createNewFile();
-                FileOutputStream fos = new FileOutputStream(file, false);
-                //read file
-                while (fileSize > 0 && clientSocket.getInputStream().read(
-                        buf, 0, Math.min(buf.length, fileSize)) > -1) {
-                    fos.write(buf, 0, Math.min(buf.length, fileSize));
-                    fos.flush();
-                    fileSize -= buf.length;
-                }
-                fos.close();
-                if (isPrivate) {
-                    System.out.println("Receiving private file from: " + name + " " + fileName + " size: " + fileSize);
-                    users.get(receiver).out.println("PRIVATEFILE " + "[" + new Date() + "] "
-                            + name + ": " + receiver + ": " + fileName);
-                    users.get(name).out.println("PRIVATEFILE " + "[" + new Date() + "] "
-                            + name + ": " + receiver + ": " + fileName);
+                if(!file.createNewFile()) {
+                    out.println("FAILEDFILETRANSFER Duplicate file name.");
+                    clientSocket.getInputStream().skip(fileSize);
                 } else {
-                    System.out.println("Receiving file from: " + name + " " + fileName + " size: " + fileSize);
-                    for (PrintWriter writer : outputWriters) {
-                        writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
+                    FileOutputStream fos = new FileOutputStream(file, false);
+                    //read file
+                    while (fileSize > 0 && clientSocket.getInputStream().read(
+                            buf, 0, Math.min(buf.length, fileSize)) > -1) {
+                        fos.write(buf, 0, Math.min(buf.length, fileSize));
+                        fos.flush();
+                        fileSize -= buf.length;
+                    }
+                    fos.close();
+                    if (isPrivate) {
+                        System.out.println("Receiving private file from: " + name + " " + fileName + " size: "
+                                + initFileSize);
+                        users.get(receiver).out.println("PRIVATEFILE " + "[" + new Date() + "] "
+                                + name + ": " + receiver + ": " + fileName);
+                        users.get(name).out.println("PRIVATEFILE " + "[" + new Date() + "] "
+                                + name + ": " + receiver + ": " + fileName);
+                    } else {
+                        System.out.println("Receiving file from: " + name + " " + fileName + " size: " + initFileSize);
+                        for (PrintWriter writer : outputWriters) {
+                            writer.println("FILE " + "[" + new Date() + "] " + name + ": " + fileName);
+                        }
                     }
                 }
-
             } catch (FileNotFoundException fnfe) {
                 out.println("FAILEDFILETRANSFER Improper file name.");
             } catch (IOException ioe) {
