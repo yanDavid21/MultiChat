@@ -29,6 +29,7 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
   @Override
   public void run() {
     String username = "";
+    boolean clientClosed = false;
 
     while(model.isConnectionRunning()) { //while the server and this client is still connected
 
@@ -82,7 +83,6 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
       } else if(line.startsWith("FILEDATA ")) {
         File file = view.showSaveDialog(line.substring(line.indexOf(":") + 1));
         long fileSize = Long.parseLong(line.substring(9, line.indexOf(":")));
-        System.out.println("filesize" + fileSize);
         try {
           model.saveFile(file, fileSize);
         } catch (IOException ioe) {
@@ -92,6 +92,7 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         view.appendChatLog(line.substring(12), "black", true, "PRIVATEFILE");
       } else if(line.startsWith("SERVERCLOSE")) {
         view.displayError(false, "Server has closed.");
+        clientClosed = true;
       } else if (line.startsWith("REQUESTEDNEWROOM ")) {
         try {
           MultiChatModel newModel = model.switchPorts(line.substring(17));
@@ -105,7 +106,9 @@ public class MultiChatControllerImpl implements MultiChatController, Features {
         }
       }
     }
-    view.displayError(false, "Connection to server unexpectedly failed.");
+    if (!clientClosed) {
+      view.displayError(false, "Connection to server unexpectedly failed.");
+    }
   }
 
   @Override

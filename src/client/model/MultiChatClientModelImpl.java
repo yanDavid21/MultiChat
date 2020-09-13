@@ -50,7 +50,6 @@ public class MultiChatClientModelImpl implements MultiChatModel {
 
         socket.startHandshake();
         wrapClientIO();
-        checkSocketError();
     }
 
     //returns the SSLSocket initialized with the keys and algorithm to use for encryption
@@ -96,13 +95,6 @@ public class MultiChatClientModelImpl implements MultiChatModel {
     private void wrapClientIO() throws IOException {
         in = new Scanner(socket.getInputStream());
         out = new PrintWriter(socket.getOutputStream(), true);
-    }
-
-    //prints an error message if the output stream of the socket has an issue
-    private void checkSocketError() {
-        if (out.checkError())
-            System.out.println(
-                    "SSLSocketClient:  java.io.PrintWriter error");
     }
 
     @Override

@@ -1,10 +1,12 @@
 package client.view.javafxView;
 
 import client.controller.Features;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,11 +28,16 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class that represents a controller for JavaFX GUI elements, handling all of the GUI components' functionality. This
+ * class holds methods such as opening interfaces, communicating to the server, and displaying server information.
+ */
 public class FXMLController extends AbstractFXMLController {
     private Scene scene;
     private final Set<PrivateMessagingController> privateMessagingWindows = new HashSet<>();
@@ -57,6 +64,11 @@ public class FXMLController extends AbstractFXMLController {
         this.features = features;
     }
 
+    /**
+     * Initializes the value and display of the JavaFx components.
+     *
+     * @param scene the scene to be displayed
+     */
     public void initialize(Scene scene) {
         super.initController();
         this.scene = scene;
@@ -66,67 +78,107 @@ public class FXMLController extends AbstractFXMLController {
     }
 
 
+    //opens the settings preference interface
     @FXML
     private void openSettingsPanel() {
         settingsPanel.display();
     }
 
+    //opens an interface to start private messaging
     @FXML
     private void openNewChatWindow() {
         newChatPanel.display();
     }
 
+    //opens a file explorer
     @FXML
     private void openFileExplorer() {
         getFile(false, scene.getWindow(), null, null);
     }
 
+    //opens a file explorer showing only .png, .jpeg, and .gif files
     @FXML
     private void openImageExplorer() {
         getImage(false, scene.getWindow(), null, null);
     }
 
+    //returns the String prefix to every message to the server
     @Override
     protected String getPreface() {
         return "";
     }
 
+    /**
+     * Adds the given message to the chatlog if it is public. If it is private, it will append the message to a private
+     * message to the sender and receiver. The look of the message is based on the protocol and if it has a date.
+     * This method also plays a notification when the window is not focused and unmuted.
+     *
+     * @param s        the message
+     * @param color    the desired color of the message
+     * @param hasDate  whether the message has a date included
+     * @param protocol the protocol associated with this message
+     */
     public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
-        //playNotif();
         if (features.getClientUsername().equals(extractName(s))) {
             color = "white";
+        }
+        if (protocol.equals("PRIVATEMESSAGE") || protocol.equals("PRIVATEFILE") || protocol.equals("FILE") ||
+                protocol.equals("MESSAGE")) {
+            playNotif();
         }
         if (protocol.equals("PRIVATEMESSAGE") || protocol.equals("PRIVATEFILE")) {
             appendPrivateChatLog(s, color, hasDate, protocol);
         } else {
-            super.appendChatLog(s, color, hasDate, protocol);
+            super.updateChatLog(s, color, hasDate, protocol);
         }
 
     }
 
+    /**
+     * Sets the ability to edit the text field.
+     *
+     * @param b whether the text field is editable
+     */
     public void setTextFieldEditable(boolean b) {
         chatField.setEditable(b);
     }
 
+    /**
+     * Sets the list of active users and updates the display.
+     *
+     * @param activeUsers the list of active users
+     */
     public void setActiveUsers(List<String> activeUsers) {
         setActiveList(activeUsers, this.userList, this.userListView, true);
     }
 
+    /**
+     * Sets the list of active servers and updates the display.
+     *
+     * @param activeServers the list of active servers
+     */
     public void setActiveServers(List<String> activeServers) {
         setActiveList(activeServers, this.serverList, this.serverListView, false);
     }
 
 
+    /**
+     * Opens a file explorer that allows users to choose a location to save a file.
+     *
+     * @param fileName the name of the file to be saved
+     * @return the file to be saved
+     */
     public File showSaveDialog(String fileName) {
         Platform.runLater(() -> {
             FileChooser chooser = new FileChooser();
             chooser.setInitialFileName(fileName);
             File file = chooser.showSaveDialog(scene.getWindow());
-            setChosenFile(file);
+            chosenFile = file;
         });
         return chosenFile;
     }
 
+    //sets the observablelist and listview display to reflect any changes in the given List
     private void setActiveList(List<String> listOfNames, ObservableList<String> observableList,
                                ListView<String> listView, boolean isUserList) {
         Platform.runLater(() -> {
@@ -137,6 +189,7 @@ public class FXMLController extends AbstractFXMLController {
         });
     }
 
+    //maps a color to the name
     private void mapNameToColor(List<String> listOfNames) {
         for (String name : listOfNames) {
             if (!nameColors.containsKey(name)) {
@@ -145,6 +198,7 @@ public class FXMLController extends AbstractFXMLController {
         }
     }
 
+    //appends the given message, stylized to the parameters, to a private message window between the sender and receiver
     private void appendPrivateChatLog(String s, String color, boolean hasDate, String protocol) {
         String[] components = s.substring(s.indexOf("]") + 2).split(": ");
         String date = s.substring(0, s.indexOf("]") + 1);
@@ -155,14 +209,14 @@ public class FXMLController extends AbstractFXMLController {
         if (sender.equals(features.getClientUsername())) { //if user sent this message
             for (PrivateMessagingController con : privateMessagingWindows) {
                 if (con.getReceiver().equals(receiver)) {
-                    con.appendChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
+                    con.updateChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
                     return;
                 }
             }
         } else { //incoming message
             for (PrivateMessagingController con : privateMessagingWindows) {
                 if (con.getReceiver().equals(sender)) {
-                    con.appendChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
+                    con.updateChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
                     return;
                 }
             }
@@ -170,7 +224,7 @@ public class FXMLController extends AbstractFXMLController {
                 openPrivateMessagingWindow(sender);
                 for (PrivateMessagingController con : privateMessagingWindows) {
                     if (con.getReceiver().equals(sender)) {
-                        con.appendChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
+                        con.updateChatLog(date + " " + sender + ": " + message, color, hasDate, protocol);
                         return;
                     }
                 }
@@ -178,6 +232,7 @@ public class FXMLController extends AbstractFXMLController {
         }
     }
 
+    //generates and returns a random color
     private static Color randomColor() {
         int red = ((int) (Math.random() * 255)) + 1;
         int green = ((int) (Math.random() * 255)) + 1;
@@ -186,6 +241,8 @@ public class FXMLController extends AbstractFXMLController {
     }
 
 
+    //opens a private messaging window between the user and the given receiver, if the window already exists, brings it
+    //to the front
     private void openPrivateMessagingWindow(String receiver) {
         if (features.getClientUsername().equals(receiver)) {
             appendChatLog("You cannot privately message yourself.", "red", false, "MESSAGEHELP");
@@ -211,7 +268,7 @@ public class FXMLController extends AbstractFXMLController {
             PrivateMessagingController controller = loader.getController();
             controller.initialize(receiver, features.getClientUsername(), features, window, scene);
             privateMessagingWindows.add(controller);
-            controller.appendChatLog("You are now privately messaging " +
+            controller.updateChatLog("You are now privately messaging " +
                     receiver + ".", "blue", false, "MESSAGEWELCOME");
             window.sizeToScene();
             window.setResizable(false);
@@ -225,6 +282,7 @@ public class FXMLController extends AbstractFXMLController {
         }
     }
 
+    //displays darkmode or lightmode based on the given boolean
     private void setDarkMode(boolean isSelected) {
         isDarkMode = isSelected;
         if (isSelected) {
@@ -244,16 +302,13 @@ public class FXMLController extends AbstractFXMLController {
         }
     }
 
+    //changes between the given stylesheets
     private void changeStyleSheets(Scene scene, String removedStyle, String addedStyle) {
         scene.getStylesheets().remove(getClass().getResource(removedStyle).toExternalForm());
         scene.getStylesheets().add(getClass().getResource(addedStyle).toExternalForm());
     }
 
-    private void setChosenFile(File file) {
-        chosenFile = file;
-    }
-
-
+    //a class representing an interface from selecting users to privately message
     private class NewChatPanel {
         private final Stage newChatWindow;
         private final Scene scene;
@@ -301,6 +356,7 @@ public class FXMLController extends AbstractFXMLController {
             });
         }
 
+        //displays the panel
         private void display() {
             otherUsers.clear();
             for (String user : userList) {
@@ -311,11 +367,13 @@ public class FXMLController extends AbstractFXMLController {
             newChatWindow.showAndWait();
         }
 
+        //retursn the scene of the interface
         private Scene getScene() {
             return scene;
         }
     }
 
+    //a class representing an interface for choosing the settings of MultiChatClient
     private class SettingsPanel {
         private final Stage settingsWindow;
         private final Scene scene;
@@ -347,16 +405,19 @@ public class FXMLController extends AbstractFXMLController {
                 settingsWindow.hide();
             });
         }
+
+        //displays the window
         private void display() {
             settingsWindow.showAndWait();
         }
 
+        //returns the scene
         private Scene getScene() {
             return scene;
         }
     }
 
-
+    //class that extends the standard list cell to include button functionality
     private class Cell extends ListCell<String> {
         private final boolean isUserList;
 
@@ -409,9 +470,11 @@ public class FXMLController extends AbstractFXMLController {
         }
     }
 
+    //plays a notification sound if the user got a message on an unfocused window
     private void playNotif() {
-        if(!scene.getWindow().isFocused() && !isMuted) {
-            URL file = getClass().getResource("/client/resources/sounds/");
+        if (!scene.getWindow().isFocused() && !isMuted) {
+            URL file = getClass().getResource("/client/resources/sounds/Notification sound.m4a");
+            //Apple iMessage ping (when testing two clients on one computer highly suggest to mute the sounds!)
             final Media media = new Media(file.toString());
             final MediaPlayer mediaPlayer = new MediaPlayer(media);
             mediaPlayer.play();

@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * A JavaFX Application class that provides an entry point in creating the MultiChat JavaFX view. Every instance stores
- * itself as a static variable so the client controller can access this object when Application.launch has started.
- * This class also stores the controller of the GUI (FXMLController), the window, and the name of the user.
+ * A JavaFX Application class that provides an entry point in creating the MultiChat JavaFX view. JavaFx Applications
+ * start by creating an anonymous Application object. Every instance of FXEntryPoint stores itself as a static variable
+ * so the MultiChatClient controller can access this object when Application.launch has started. This class also stores
+ * the controller of the GUI (FXMLController), the window, and the name of the user, and a features object to use
+ * higher level functions available to view objects.
  */
 public class FXEntryPoint extends Application implements MultiChatView {
 

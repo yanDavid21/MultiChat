@@ -134,7 +134,7 @@ public abstract class AbstractFXMLController {
      * @param hasDate whether the message has a date included
      * @param protocol the protocol associated with this message
      */
-    protected void appendChatLog(String s, String color, boolean hasDate, String protocol) {
+    protected void updateChatLog(String s, String color, boolean hasDate, String protocol) {
         if (hasDate) {
             appendMessage(formatDate(s), getColor(color), true, protocol);
         } else {
@@ -217,7 +217,7 @@ public abstract class AbstractFXMLController {
                 }
 
             } else {
-                appendChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
+                updateChatLog("The file size cannot exceed 25mb", "orange", false, "MESSAGEHELP");
             }
         }
     }

@@ -18,8 +18,9 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 /**
- * Represents a simple-text server handling the input and output to several clients (30). Every instance has a list of
- * users, a list of servers, ........
+ * Represents a texting server with image and file support handling the input and output to several clients
+ * (default 30). Every server has kicking features, handles private messaging, has a list of current users,
+ * a list of active servers, and supports text commands for MultiChatClients.
  */
 public class MultiChatServer {
 
@@ -445,7 +446,7 @@ public class MultiChatServer {
 
         }
 
-        //kicks the user and reset
+        //kicks the user and reset the votekick timer
         private void kickUser() {
             for (PrintWriter writer : outputWriters) {
                 writer.println("SUCCESSFULVOTEKICK " + curVictim + " was kicked!");
@@ -497,15 +498,17 @@ public class MultiChatServer {
                     sender + ": " + receiver + ": " + message);
         }
 
-        //gets the requested file
+        //gets the requested file the outputs to all users in the room
         private void readFileThenOutputToRoom(String fileName, int fileSize) {
             readFileThenOutput(fileName, fileSize, null, false);
         }
 
+        //gets the requested file the outputs to the sender and receiver
         private void readFileThenOutputPrivately(String fileName, int fileSize, String receiver) {
             readFileThenOutput(fileName, fileSize, receiver, true);
         }
 
+        //reads the requested file then outputs it either privately or to the room based on the parameter
         private void readFileThenOutput(String fileName, int fileSize, String receiver, boolean isPrivate) {
             //create a new fileoutputstream for the file
             int initFileSize = fileSize;

@@ -1,14 +1,10 @@
 package client.view.javafxView;
 
 import client.controller.Features;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
 
 public class PrivateMessagingController extends AbstractFXMLController {
     private String receiver;
