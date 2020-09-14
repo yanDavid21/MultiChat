@@ -1,12 +1,10 @@
 package client.view.javafxView;
 
 import client.controller.Features;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,7 +26,6 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +99,6 @@ public class FXMLController extends AbstractFXMLController {
         getImage(false, scene.getWindow(), null, null);
     }
 
-    //returns the String prefix to every message to the server
     @Override
     protected String getPreface() {
         return "";
@@ -172,8 +168,7 @@ public class FXMLController extends AbstractFXMLController {
         Platform.runLater(() -> {
             FileChooser chooser = new FileChooser();
             chooser.setInitialFileName(fileName);
-            File file = chooser.showSaveDialog(scene.getWindow());
-            chosenFile = file;
+            chosenFile = chooser.showSaveDialog(scene.getWindow());
         });
         return chosenFile;
     }
@@ -272,9 +267,7 @@ public class FXMLController extends AbstractFXMLController {
                     receiver + ".", "blue", false, "MESSAGEWELCOME");
             window.sizeToScene();
             window.setResizable(false);
-            window.setOnCloseRequest(e -> {
-                privateMessagingWindows.remove(controller);
-            });
+            window.setOnCloseRequest(e -> privateMessagingWindows.remove(controller));
             window.setTitle("Private Messaging - " + receiver);
             window.show();
         } catch (IOException ioe) {
@@ -444,13 +437,11 @@ public class FXMLController extends AbstractFXMLController {
                     kick.setOnAction(e -> features.sendTextOut("/votekick " + item));
 
                     MenuItem whisper = new MenuItem("Whisper");
-                    whisper.setOnAction(e -> {
-                        Platform.runLater(() -> {
-                            chatField.setText("/whisper " + item + ": " + chatField.getText());
-                            chatField.requestFocus();
-                            chatField.positionCaret(chatField.getText().length());
-                        });
-                    });
+                    whisper.setOnAction(e -> Platform.runLater(() -> {
+                        chatField.setText("/whisper " + item + ": " + chatField.getText());
+                        chatField.requestFocus();
+                        chatField.positionCaret(chatField.getText().length());
+                    }));
 
 
                     button = new MenuButton(item, userIcon, privateMessage, whisper, new SeparatorMenuItem(), kick);
@@ -458,9 +449,7 @@ public class FXMLController extends AbstractFXMLController {
                     int roomNum = Integer.parseInt(item.split(" ")[1]);
                     userIcon.setFill(Color.GREEN);
                     MenuItem join = new MenuItem("Join");
-                    join.setOnAction(e -> {
-                        features.sendTextOut("/join " + roomNum);
-                    });
+                    join.setOnAction(e -> features.sendTextOut("/join " + roomNum));
                     button = new MenuButton(item, userIcon, join);
                 }
 

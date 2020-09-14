@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<!-- fxml for private messaging windows -->
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -16,13 +14,13 @@
       prefHeight="400.0" prefWidth="600.0">
 
     <VBox alignment="CENTER">
-        <VBox maxHeight = "550">
+        <VBox maxHeight="550">
             <ImageView id="boxImage" fitWidth="600" fitHeight="100">
                 <image>
                     <Image url="@/client/resources/logo/multichat_banner.png"/>
                 </image>
             </ImageView>
-            <StackPane maxHeight = "450">
+            <StackPane maxHeight="450">
                 <ScrollPane minHeight="450" maxHeight="450" minWidth="600" fx:id="scrollPane">
                     <VBox fx:id="chatLog" minWidth="590" spacing="3">
                         <padding>
@@ -30,22 +28,22 @@
                         </padding>
                     </VBox>
                 </ScrollPane>
-                <VBox fx:id = "fileButtons"  translateY = "450"  styleClass="file-buttons-panel">
-                    <HBox spacing = "10" prefHeight = "50">
+                <VBox fx:id="fileButtons" translateY="450" styleClass="file-buttons-panel">
+                    <HBox spacing="10" prefHeight="50">
                         <padding>
                             <Insets top="10" right="10" bottom="10" left="10"/>
                         </padding>
-                        <Button onAction="#openImageExplorer"> Upload Images </Button>
-                        <Button onAction="#openFileExplorer"> Upload Files </Button>
-                        <Button onAction = "#showEmotePanel"> Emotes </Button>
+                        <Button onAction="#openImageExplorer">Upload Images</Button>
+                        <Button onAction="#openFileExplorer">Upload Files</Button>
+                        <Button onAction="#showEmotePanel">Emotes</Button>
                     </HBox>
-                    <ScrollPane prefHeight = "100"  prefWidth = "600" >
+                    <ScrollPane prefHeight="100" prefWidth="600">
                         <padding>
-                            <Insets top = "5" right = "5" bottom = "5" left = "5"></Insets>
+                            <Insets top="5" right="5" bottom="5" left="5"></Insets>
                         </padding>
                         <VBox>
                             <padding>
-                                <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                <Insets top="2" right="2" bottom="2" left="2"></Insets>
                             </padding>
                             <style>
                                 -fx-border-color: rgb(0,162,232);
@@ -58,9 +56,9 @@
                                 </style>
                                 Standard
                             </Label>
-                            <GridPane fx:id = "standardEmotePanel" vgap = "5" hgap = "5">
+                            <GridPane fx:id="standardEmotePanel" vgap="5" hgap="5">
                                 <padding>
-                                    <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    <Insets top="2" right="2" bottom="2" left="2"></Insets>
                                 </padding>
                             </GridPane>
                             <Separator></Separator>
@@ -70,9 +68,9 @@
                                 </style>
                                 Twitch
                             </Label>
-                            <GridPane fx:id = "twitchEmotePanel" vgap = "5" hgap = "5">
+                            <GridPane fx:id="twitchEmotePanel" vgap="5" hgap="5">
                                 <padding>
-                                    <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    <Insets top="2" right="2" bottom="2" left="2"></Insets>
                                 </padding>
                             </GridPane>
                         </VBox>
@@ -81,11 +79,11 @@
                 </VBox>
             </StackPane>
         </VBox>
-        <HBox spacing="10" alignment="CENTER" styleClass = "chat-field-container">
+        <HBox spacing="10" alignment="CENTER" styleClass="chat-field-container">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-            <Button text = "+" onAction="#showButtonPanel">
+            <Button text="+" onAction="#showButtonPanel">
                 <style>
                     -fx-background-radius: 1em;
                     -fx-font-size:15;

@@ -38,6 +38,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+//deprecated
 public class MultiChatViewImpl extends JFrame implements MultiChatView {
 
   private Features feature;
@@ -50,6 +51,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   private boolean startedTyping;
   private JMenuBar menu;
 
+  //deprecated
   public MultiChatViewImpl() {
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -102,6 +104,11 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
       }
     });
     this.setVisible(true);
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
   }
 
   @Override

@@ -5,8 +5,10 @@ import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+//deprecated
 public class HelpDialog extends JDialog {
 
+  //deprecated
   public HelpDialog() {
     super();
     JTextPane displayText = new JTextPane();
