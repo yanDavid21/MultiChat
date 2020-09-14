@@ -1,7 +1,9 @@
-package client.view;
+package client.view.swingView;
 
 import client.controller.Features;
+import client.view.MultiChatView;
 import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -103,7 +105,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   }
 
   @Override
-  public void appendChatLog(String s, String color, boolean hasDate) {
+  public void appendChatLog(String s, String color, boolean hasDate, String protocol) {
     String toAdd = "";
     if (hasDate) {
       toAdd = "<span style=\"color:" + color + "\">" + convertEmoteIfAny(removeHTML(formatDate(s)))
@@ -140,7 +142,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
   @Override
   public void setActiveUsers(List<String> activeUsersList) {
     StringBuilder buildUserList = new StringBuilder();
-    buildUserList.append("<h3>Active Users:</h3>");
+    buildUserList.append("<h3> Active Users:</h3>");
     for (String user : activeUsersList) {
       buildUserList.append(removeHTML(user) + "<br>");
     }
@@ -157,16 +159,26 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     this.activeServers.setText(buildServerList.toString());
   }
 
+  @Override
+  public void displayError(boolean remainRunningWhenClosed, String errorMessage) {
+    return;
+  }
+
+  @Override
+  public File showSaveDialog(String fileName) {
+    return null;
+  }
+
   private class CenterPanel extends JPanel {
 
     private CenterPanel() {
       this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
       chatLog = new JTextPane();
-      chatLog.setPreferredSize(new Dimension(400, 300));
       chatLog.setContentType("text/html");
       chatLog.setAutoscrolls(true);
       chatLog.setEditable(false);
-      JScrollPane scrollChatLog = (new JScrollPane(chatLog));
+      JScrollPane scrollChatLog = new JScrollPane(chatLog);
+      scrollChatLog.setPreferredSize(new Dimension(400, 300));
       scrollChatLog.setBorder(new LineBorder(Color.BLUE, 1));
       this.add(scrollChatLog);
 
@@ -288,6 +300,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     private JMenuItem darkmode;
     private JMenuItem font;
     private JMenuItem helpItem;
+    private JMenuItem quitItem;
 
     private CustomMenuBar() {
       settings = new JMenu("MultiChat");
@@ -302,6 +315,7 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
       darkmode = new JMenuItem("Enable Darkmode");
       font = new JMenuItem("Font");
       helpItem = new JMenuItem("Help");
+      quitItem = new JMenuItem("Quit");
 
       try {
         Image switchRoomIcon = ImageIO.read(getClass().getResource(
@@ -325,15 +339,21 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
 
       settings.add(switchRooms);
       settings.add(privateMessage);
+      settings.add(quitItem);
       view.add(darkmode);
       view.add(font);
       help.add(helpItem);
 
       helpItem.addActionListener(e -> createHelpDialog());
+      quitItem.addActionListener(e -> quitFromMenu());
     }
   }
   private void createHelpDialog() {
     new HelpDialog();
+  }
+
+  private void quitFromMenu() {
+    feature.sendTextOut("/quit");
   }
 
   private String formatDate(String message) {
@@ -390,9 +410,9 @@ public class MultiChatViewImpl extends JFrame implements MultiChatView {
     for(String word : words) {
       // if the word equals an emoji name (ex. <3) then replace it with html image code
       String currentWord = word.trim();
-      if(MultiChatView.EMOTES.containsKey(currentWord)) {
+      if(MultiChatView.HTML_EMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()
-            .getResource("client/resources/images/emojis/" + MultiChatView.EMOTES.get(
+            .getResource("client/resources/images/emojis/" + MultiChatView.HTML_EMOTES.get(
                 currentWord)).toString() + "\" alt = \"error\" width = \"20\" height = \"20\">");
       } else if(MultiChatView.TWITCH_EMOTES.containsKey(currentWord)) {
         builder.append("<img src = \"" + MultiChatViewImpl.class.getClassLoader()

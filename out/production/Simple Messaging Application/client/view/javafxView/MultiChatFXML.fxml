@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="client.view.javafxView.FXMLController"
+      prefWidth="600.0" fx:id="layout">
+
+    <HBox minHeight="500">
+        <VBox minWidth="200">
+            <StackPane alignment="CENTER_RIGHT">
+                <ImageView fitWidth="200" fitHeight="50" >
+                    <image>
+                        <Image url="@/client/resources/logo/multichat_overhead.png"/>
+                    </image>
+                </ImageView>
+                <Group>
+                    <HBox spacing = "10">
+                        <padding><Insets top = "10" right = "10" bottom = "10" left = "10"></Insets></padding>
+                        <Button focusTraversable="false" onAction = "#openNewChatWindow"
+                                styleClass = "chat-and-settings-button">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/client/resources/logo/new_message_icon.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button focusTraversable="false" onAction = "#openSettingsPanel"
+                                styleClass = "chat-and-settings-button">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/client/resources/logo/settings_icon.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </HBox>
+                </Group>
+            </StackPane>
+            <TabPane>
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Tab text="Users" closable="false">
+                    <ListView fx:id="userListView">
+                    </ListView>
+                </Tab>
+                <Tab text="Servers" closable="false">
+                    <ListView fx:id="serverListView">
+                    </ListView>
+                </Tab>
+            </TabPane>
+        </VBox>
+
+        <!--Chat Area-->
+        <VBox alignment="CENTER">
+            <VBox maxHeight = "550">
+                <ImageView id="boxImage" fitWidth="600" fitHeight="100">
+                    <image>
+                        <Image url="@/client/resources/logo/multichat_banner.png"/>
+                    </image>
+                </ImageView>
+                <StackPane maxHeight = "450">
+                    <ScrollPane minHeight="450" maxHeight="450" minWidth="600" fx:id="scrollPane">
+                        <VBox fx:id="chatLog" minWidth="590" spacing="3">
+                            <padding>
+                                <Insets top="8" right="8" bottom="8" left="8"/>
+                            </padding>
+                        </VBox>
+                    </ScrollPane>
+                    <VBox fx:id = "fileButtons"  translateY = "450" styleClass="file-buttons-panel">
+                        <HBox spacing = "10" prefHeight = "50">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <Button onAction="#openImageExplorer"> Upload Images </Button>
+                            <Button onAction = "#openFileExplorer"> Upload Files </Button>
+                            <Button onAction = "#showEmotePanel"> Emotes </Button>
+                        </HBox>
+                        <ScrollPane prefHeight = "100"  prefWidth = "600" >
+                            <padding>
+                                <Insets top = "5" right = "5" bottom = "5" left = "5"></Insets>
+                            </padding>
+                            <VBox>
+                                <padding>
+                                    <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                </padding>
+                                <style>
+                                    -fx-border-color: rgb(0,162,232);
+                                    -fx-border-width: 1;
+                                    -fx-border-insets: 3;
+                                </style>
+                                <Label>
+                                    <style>
+                                        -fx-font: 15px Verdana;
+                                    </style>
+                                    Standard
+                                </Label>
+                                <GridPane fx:id = "standardEmotePanel" vgap = "5" hgap = "5">
+                                    <padding>
+                                        <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    </padding>
+                                </GridPane>
+                                <Separator></Separator>
+                                <Label>
+                                    <style>
+                                        -fx-font: 15px Verdana;
+                                    </style>
+                                    Twitch
+                                </Label>
+                                <GridPane fx:id = "twitchEmotePanel" vgap = "5" hgap = "5">
+                                    <padding>
+                                        <Insets top = "2" right = "2" bottom = "2" left = "2"></Insets>
+                                    </padding>
+                                </GridPane>
+                            </VBox>
+
+                        </ScrollPane>
+                    </VBox>
+                </StackPane>
+            </VBox>
+            <HBox spacing="10" alignment="CENTER" styleClass = "chat-field-container">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Button text = "+" onAction="#showButtonPanel">
+                    <style>
+                        -fx-background-radius: 1em;
+                        -fx-font-size:15;
+                    </style>
+                </Button>
+                <Separator orientation="VERTICAL"></Separator>
+                <TextArea promptText="Type here..." fx:id="chatField" maxHeight="10" wrapText="true"
+                          onKeyPressed="#onEnter" prefWidth="500" styleClass = "chat-field">
+                </TextArea>
+            </HBox>
+        </VBox>
+
+    </HBox>
+
+</VBox>
