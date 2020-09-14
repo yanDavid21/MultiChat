@@ -30,6 +30,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Duration;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -67,12 +68,13 @@ public abstract class AbstractFXMLController {
     protected void initController() {
         prepareButtonAnimation();
         scrollPane.vvalueProperty().bind(chatLog.heightProperty());
-        initializeEmotePanels(MultiChatView.FXEMOTES,"/client/resources/images/emojis/", standardEmotePanel);
-        initializeEmotePanels(MultiChatView.TWITCH_EMOTES,"/client/resources/images/twitch/", twitchEmotePanel);
+        initializeEmotePanels(MultiChatView.FXEMOTES, "/client/resources/images/emojis/", standardEmotePanel);
+        initializeEmotePanels(MultiChatView.TWITCH_EMOTES, "/client/resources/images/twitch/", twitchEmotePanel);
     }
 
     /**
      * Returns the command to denote what type of message it is. (ie. "/privatemessage")
+     *
      * @return the String that prefaces the message sent to the server from the text field
      */
     protected abstract String getPreface();
@@ -80,6 +82,7 @@ public abstract class AbstractFXMLController {
     /**
      * Sends the text in the textfield to the server if the given key event is an 'enter key event' and the chatfield
      * is non-empty.
+     *
      * @param ke the key event given
      */
     @FXML
@@ -119,9 +122,9 @@ public abstract class AbstractFXMLController {
     @FXML
     private void showButtonPanel() {
         Platform.runLater(() -> {
-            if(fileButtons.getTranslateY() == 450){
+            if (fileButtons.getTranslateY() == 450) {
                 slideUp.play();
-            } else{
+            } else {
                 slideDown.play();
             }
         });
@@ -129,9 +132,10 @@ public abstract class AbstractFXMLController {
 
     /**
      * Adds and stylizes the given String to the chat log based on the given color, boolean, and protocol.
-     * @param s the message
-     * @param color the desired color of the message
-     * @param hasDate whether the message has a date included
+     *
+     * @param s        the message
+     * @param color    the desired color of the message
+     * @param hasDate  whether the message has a date included
      * @param protocol the protocol associated with this message
      */
     protected void updateChatLog(String s, String color, boolean hasDate, String protocol) {
@@ -145,8 +149,9 @@ public abstract class AbstractFXMLController {
     /**
      * Display an error message dialog with the given error message. Closing the error message can close the program
      * based on the given boolean
+     *
      * @param remainRunningWhenClosed whether the program should keep running when the dialog is closed
-     * @param errorMessage the error message to be displayed
+     * @param errorMessage            the error message to be displayed
      */
     protected void displayError(boolean remainRunningWhenClosed, String errorMessage) {
         Platform.runLater(() -> {
@@ -160,6 +165,7 @@ public abstract class AbstractFXMLController {
 
     /**
      * Extracts the username from the given message by taking the String in between "]" and ": ".
+     *
      * @param msg the message to extract the username from
      */
     protected String extractName(String msg) {
@@ -169,10 +175,11 @@ public abstract class AbstractFXMLController {
     /**
      * Opens a file explorer interface that allows a client to select a file (any extension) and sends the file to the
      * server using the model through the controller's features object.
+     *
      * @param isPrivate whether the file being sent is in a private message
-     * @param window the window of the main application to host the dialog
-     * @param receiver the receiver of the file if the file is private, null if if public
-     * @param sender the sender of the file if the file is private, null if if public
+     * @param window    the window of the main application to host the dialog
+     * @param receiver  the receiver of the file if the file is private, null if if public
+     * @param sender    the sender of the file if the file is private, null if if public
      */
     protected void getFile(boolean isPrivate, Window window, String receiver, String sender) {
         Platform.runLater(() -> {
@@ -185,10 +192,11 @@ public abstract class AbstractFXMLController {
     /**
      * Opens a file explorer interface that allows a client to select an image (.PNG, .JPG, and .GIF) and sends the
      * file to the server using the model through the controller's features object.
+     *
      * @param isPrivate whether the image file being sent is in a private message
-     * @param window the window of the main application to host the dialog
-     * @param receiver the receiver of the image file if the image file is privately sent, null if if public
-     * @param sender the sender of the image file if the image file is privately sent, null if if public
+     * @param window    the window of the main application to host the dialog
+     * @param receiver  the receiver of the image file if the image file is privately sent, null if if public
+     * @param sender    the sender of the image file if the image file is privately sent, null if if public
      */
     protected void getImage(boolean isPrivate, Window window, String receiver, String sender) {
         Platform.runLater(() -> {

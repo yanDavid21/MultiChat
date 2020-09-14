@@ -46,7 +46,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     /**
      * Creates an instance of FXEntryPoint. When Application.launch() creates a new instance of this class, set the
-     * created object to the public static variable
+     * created object to the public static variable.
      */
     public FXEntryPoint() {
         currentApp = this;
@@ -55,6 +55,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
     /**
      * Gets the most recent instance of FXEntryPoint. A blocking method that will wait until an instance is called
      * and initialized.
+     *
      * @return the most recent instance of FXEntryPoint
      */
     public static FXEntryPoint getCurrentInstance() {
@@ -78,7 +79,6 @@ public class FXEntryPoint extends Application implements MultiChatView {
             window.show();
             window.setTitle("MultiChat - " + name);
         });
-
     }
 
     @Override
@@ -122,7 +122,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
     @Override
     public File showSaveDialog(String fileName) {
-       return controller.showSaveDialog(fileName);
+        return controller.showSaveDialog(fileName);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class FXEntryPoint extends Application implements MultiChatView {
 
         //inside root
         VBox inputPanel = new VBox();
-        inputPanel.setPadding(new Insets(10,30,10,30));
+        inputPanel.setPadding(new Insets(10, 30, 10, 30));
         inputPanel.setAlignment(Pos.CENTER);
         inputPanel.setSpacing(10);
 

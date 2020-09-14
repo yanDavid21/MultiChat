@@ -164,9 +164,9 @@ public class MultiChatClientModelImpl implements MultiChatModel {
             while (fileSize > 0 && socket.getInputStream().read(
                     buf, 0, (int) Math.min(buf.length, fileSize)) > -1) {
                 fos.write(buf, 0, buf.length);
-                fos.flush();
                 fileSize -= buf.length;
             }
+            fos.flush();
             fos.close();
         } else {
             socket.getInputStream().skip(fileSize);

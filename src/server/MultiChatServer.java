@@ -303,19 +303,7 @@ public class MultiChatServer {
                         try {
                             String fileOwner = input.substring(13, input.indexOf(":"));
                             String fileName = input.substring(input.indexOf(":") + 1);
-                            File requested = new File("resources/tempFiles/" + fileOwner + "/" + fileName);
-                            long fileSize = requested.length();
-                            byte[] buffer = new byte[4096];
-                            FileInputStream fis = new FileInputStream(requested);
-                            BufferedInputStream bis = new BufferedInputStream(fis);
-                            int amountRead;
-                            out.println("FILEDATA " + fileSize + ":" + fileName);
-                            while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
-                                clientSocket.getOutputStream().write(buffer, 0, amountRead);
-                            }
-                            clientSocket.getOutputStream().flush();
-                            fis.close();
-                            bis.close();
+                            fetchFile(fileOwner, fileName);
                         } catch (IOException | NullPointerException ioe) {
                             out.println("FAILEDFILETRANSFER Error fetching file.");
                         }
@@ -466,7 +454,6 @@ public class MultiChatServer {
 
                 // cancel the timer
                 kickTimer.cancel();
-
                 alreadyVoted.clear();
             }
         }
@@ -547,6 +534,22 @@ public class MultiChatServer {
             } catch (IOException ioe) {
                 out.println("FAILEDFILETRANSFER Error communicating to server.");
             }
+        }
+
+        private void fetchFile(String fileOwner, String fileName) throws IOException {
+            File requested = new File("resources/tempFiles/" + fileOwner + "/" + fileName);
+            long fileSize = requested.length();
+            byte[] buffer = new byte[4096];
+            FileInputStream fis = new FileInputStream(requested);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            int amountRead;
+            out.println("FILEDATA " + fileSize + ":" + fileName);
+            while ((amountRead = bis.read(buffer, 0, buffer.length)) > -1) {
+                clientSocket.getOutputStream().write(buffer, 0, amountRead);
+            }
+            clientSocket.getOutputStream().flush();
+            fis.close();
+            bis.close();
         }
     }
 
