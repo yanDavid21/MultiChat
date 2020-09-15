@@ -1,3 +1,6 @@
+# SSLSocket-Messaging-App
+A chatting application with a dedicated GUI client and servers, operating on TLS protocols. 
+
 # MultiChat - A Chatting Application Using Java Sockets
 A chatting application with a dedicated GUI client and servers, operating on TLS protocols. MultiChat is a room chatting application with a modern look and features such file transferring, emotes, and private messaging.
 
