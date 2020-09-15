@@ -8,9 +8,9 @@ A chatting application with a dedicated GUI client and servers, operating on TLS
 This project was an opportunity to learn the server-client model and apply the Object Oriented Programming designs from class. The experimentation and research had some serendipitous lessons such as UI/UX design, the Internet layers, and a newfound appreciation for CSS! Also it helped with the quarantine cabin fever ;p
 
 ## Screenshots
-![MultiChat example](./images/multichat_example.PNG)  
+
 ![Private message example with settings panel](./images/privatemessage-settings-example.PNG)  
-![List view example](./images/listview-example.png)  
+![MultiChat example](./images/multichat_example.PNG)  
 
 ## Installation
 A guide on how to install MultiChat will be coming soon. 
