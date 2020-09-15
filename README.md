@@ -1,6 +1,3 @@
-# SSLSocket-Messaging-App
-A chatting application with a dedicated GUI client and servers, operating on TLS protocols. 
-
 # MultiChat - A Chatting Application Using Java Sockets
 A chatting application with a dedicated GUI client and servers, operating on TLS protocols. MultiChat is a room chatting application with a modern look and features such file transferring, emotes, and private messaging.
 
@@ -53,15 +50,15 @@ While MultiChat is primarily a group-focused chatting application, it still has 
 ## Usage
 
 ### For the provider
-1.) Run MultiChatMasterServer
-    This server keeps track of all active MultiChatServers and will update every server when one becomes active or inactive.
-2.) Run MultiChatServer (as many instances as you want)
-    This server serves the clients and acts as the room for the clients to connect in. Run this with command line arguments specifying the amount of users that can connect to this server (room) and specifying what port to use. There are also basic commands to manage the server while its running in the terminal: receiving the list of all active servers, all active users, and closing the server (removing any client sent files and ending the connection).
+1.) Run MultiChatMasterServer  
+    This server keeps track of all active MultiChatServers and will update every server when one becomes active or inactive.  
+2.) Run MultiChatServer (as many instances as you want)  
+    This server serves the clients and acts as the room for the clients to connect in. Run this with command line arguments specifying the amount of users that can connect to this server (room) and specifying what port to use. There are also basic commands to manage the server while its running in the terminal: receiving the list of all active servers, all active users, and closing the server (removing any client sentfiles and ending the connection).  
 3.) Port Foward
-    Instruct your route to recognize and route any requests to your specified port to the server.
-4.) Construct a .jar file for your clients
-    Construct a .jar file for your clients with the arguments specifying the server's public IP address and the port number you want to be the default (welcome) room.
+    Instruct your route to recognize and route any requests to your specified port to the server.  
+4.) Construct a .jar file for your clients  
+    Construct a .jar file for your clients with the arguments specifying the server's public IP address and the port number you want to be the default (welcome) room.  
 
-### For the users
-1.) Run the .jar file!
+### For the users  
+1.) Run the .jar file!  
 
